@@ -14,6 +14,7 @@ import threading
 import zipfile
 import zlib
 from collections import defaultdict
+from contextlib import closing
 from pathlib import Path
 from typing import Protocol
 
@@ -187,7 +188,7 @@ class KnowledgeStore:
         return self.path.exists()
 
     def _connect(self):
-        return sqlite3.connect(self.path.as_uri() + "?mode=ro", uri=True)
+        return closing(sqlite3.connect(self.path.as_uri() + "?mode=ro", uri=True))
 
     def metadata(self) -> dict | None:
         if not self.installed:
@@ -247,7 +248,9 @@ class KnowledgeStore:
         os.close(fd)
         temporary = Path(temporary_name)
         try:
-            with sqlite3.connect(temporary) as db:
+            # sqlite's transaction context does not close the connection. Windows
+            # requires every handle closed before atomically replacing the file.
+            with closing(sqlite3.connect(temporary)) as db, db:
                 db.execute("CREATE TABLE metadata (key TEXT PRIMARY KEY,value TEXT NOT NULL)")
                 db.execute(
                     "CREATE TABLE fragments (id TEXT PRIMARY KEY,evidence TEXT NOT NULL,vector BLOB)"
@@ -274,7 +277,7 @@ class KnowledgeStore:
                 )
                 if db.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
                     raise PackageError("Ошибка проверки целостности новой базы")
-            with temporary.open("rb") as stream:
+            with temporary.open("r+b") as stream:
                 os.fsync(stream.fileno())
             os.replace(temporary, self.path)
         finally:

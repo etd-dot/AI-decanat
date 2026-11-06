@@ -17,8 +17,11 @@ def test_offline_changes_cannot_race_running_application(tmp_path):
 
 def test_compiled_web_rtc_processes_real_native_blocks():
     root = Path(__file__).resolve().parents[1]
-    name = "libdecanat_audio.dylib" if sys.platform == "darwin" else "libdecanat_audio.so"
-    library = root / ".tools/native/lib" / name
+    if sys.platform == "win32":
+        library = root / ".tools/native/bin/decanat_audio.dll"
+    else:
+        name = "libdecanat_audio.dylib" if sys.platform == "darwin" else "libdecanat_audio.so"
+        library = root / ".tools/native/lib" / name
     if not library.exists():
         pytest.skip("Build the native WebRTC library before its integration check")
     apm = EchoCanceller(library)

@@ -1,0 +1,66 @@
+{
+  "recorded_at_utc": "2026-11-05T21:29:00.754232+00:00",
+  "base_plugin": {
+    "installed_at_utc": "2026-11-05T16:01:17.501640+00:00",
+    "archive": "C:\\Users\\brrwmaster\\Downloads\\NV_ACE_Reference-UE5.6-v2.5.0rc3.zip",
+    "archive_sha256": "28b205418be6229c751df1fa57259eca59c0dc8d6039404007cfaca11d3f29d2",
+    "plugin": "NV_ACE_Reference",
+    "version": "2.5.0-20250614-2282",
+    "engine_version": "5.6.0",
+    "uncompressed_bytes": 4981825097,
+    "license": "MIT for plugin source; third-party components/models have separate notices",
+    "license_retained": true,
+    "source": "User download from the official authenticated NVIDIA URL",
+    "build_verified": true,
+    "local_model_installed": true,
+    "face_sync_verified": true,
+    "verification_updated_at_utc": "2026-11-05T21:29:00.754232+00:00"
+  },
+  "model_plugin": {
+    "installed_at_utc": "2026-11-05T16:36:32.864156+00:00",
+    "archive": "C:\\Games\\AI-decanat\\.cache\\ace\\NvAudio2FaceMark-UE5.6-v2.4.0.zip",
+    "archive_sha256": "9096e2df03c0eef3541b26c434f84d144514c45edb92e2b2a546e55050b982e3",
+    "plugin": "NvAudio2FaceMark",
+    "version": "2.4.0-20250610-2270",
+    "engine_version": "5.6.0",
+    "uncompressed_bytes": 1768278908,
+    "license": "MIT for plugin source; third-party components/models have separate notices",
+    "license_retained": true,
+    "source": "User download from the official authenticated NVIDIA URL",
+    "build_verified": true,
+    "local_model_installed": true,
+    "face_sync_verified": true,
+    "model_redistribution_cleared": false,
+    "bundled_model_license": "NVIDIA Models Community License (2025.04.15); development install, production qualification remains open",
+    "verification_updated_at_utc": "2026-11-05T21:29:00.754232+00:00"
+  },
+  "editor_build_verified": true,
+  "local_provider": "LocalA2F-Mark",
+  "gpu_inference_verified": true,
+  "face_sync_verified": true,
+  "production_model_license_qualification_complete": false,
+  "open_model_reference": "https://huggingface.co/nvidia/Audio2Face-3D-v3.0",
+  "bundled_model_license": "NVIDIA Models Community License (2025.04.15), not the NVIDIA Open Model License",
+  "packaged_build_verified": true,
+  "face_sync_scope": "Windows Development, approved Russian PCM, actual WASAPI output DAC timestamps; not an acoustic quality SLA",
+  "cancellation_before_and_during_playback_verified": true,
+  "native_mouth_and_blink_curves_verified": true,
+  "single_audible_owner": "backend AudioDeviceAgent; ACE consumer volume is zero",
+  "timing": {
+    "samples": 93,
+    "maximum_absolute_error_seconds": 0.08373443631717237,
+    "p95_absolute_error_seconds": 0.08327829774498241,
+    "minimum_signed_error_seconds": 0.014361195804667659,
+    "maximum_signed_error_seconds": 0.08373443631717237,
+    "acceptance_bound_seconds": 0.15
+  },
+  "proof": {
+    "file": ".runtime/unreal/packaged-cold-cancel-verification.json",
+    "sha256": "da0b3ef6e68681ef4af94794a77f664f4cdabb9f4fae2b31f2e783e0994b19ad"
+  },
+  "development_timing_patch": {
+    "file": "desktop\\Decanat\\Plugins\\NV_ACE_Reference\\Source\\ACERuntime\\Public\\ACEAudioCurveSourceComponent.h",
+    "scope": "read_only_development_timing_getter",
+    "modified_sha256": "baa1df5380bf443c2dc26f78d643aafe3b76617b8db1a4ff76d84759ac8fab9d"
+  }
+}

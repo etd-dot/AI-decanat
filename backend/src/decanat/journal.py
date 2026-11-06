@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from contextlib import closing, contextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -21,11 +22,13 @@ class Journal:
                 spoken_text TEXT NOT NULL DEFAULT '')""")
         self.purge()
 
+    @contextmanager
     def _db(self):
-        db = sqlite3.connect(self.path)
-        db.row_factory = sqlite3.Row
-        db.execute("PRAGMA secure_delete=ON")
-        return db
+        with closing(sqlite3.connect(self.path)) as db:
+            db.row_factory = sqlite3.Row
+            db.execute("PRAGMA secure_delete=ON")
+            with db:
+                yield db
 
     def record(
         self,

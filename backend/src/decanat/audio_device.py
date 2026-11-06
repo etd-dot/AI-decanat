@@ -2,12 +2,37 @@ from __future__ import annotations
 
 import asyncio
 import ctypes
+import sys
 import threading
 from pathlib import Path
 
 import numpy as np
 
 from decanat.speech import EndpointDetector, SileroVAD
+
+
+def stream_devices(input_device, output_device, sd):
+    """Prefer the Windows default WASAPI endpoints without overriding staff choices.
+
+    Format checks do not open capture. Keep PortAudio's default if the host or
+    either endpoint cannot support our duplex format.
+    """
+    if input_device or output_device:
+        return (input_device or None, output_device or None)
+    if sys.platform == "win32":
+        for host in sd.query_hostapis():
+            if host["name"] != "Windows WASAPI":
+                continue
+            capture, render = host["default_input_device"], host["default_output_device"]
+            if capture < 0 or render < 0:
+                return None
+            try:
+                sd.check_input_settings(device=capture, channels=1, dtype="int16", samplerate=48000)
+                sd.check_output_settings(device=render, channels=1, dtype="int16", samplerate=48000)
+            except (sd.PortAudioError, ValueError):
+                return None
+            return (capture, render)
+    return None
 
 
 def device_inventory() -> dict:
@@ -184,9 +209,7 @@ class AudioDeviceAgent:
 
         self.loop = asyncio.get_running_loop()
         settings = self.controller.settings.value
-        devices = None
-        if settings.input_device or settings.output_device:
-            devices = (settings.input_device or None, settings.output_device or None)
+        devices = stream_devices(settings.input_device, settings.output_device, sd)
         self._queue = self.controller.subscribe()
         self._stream = sd.RawStream(
             samplerate=48000,
@@ -194,6 +217,7 @@ class AudioDeviceAgent:
             channels=1,
             dtype="int16",
             device=devices,
+            latency="low",
             callback=self._callback,
             finished_callback=lambda: self.loop.call_soon_threadsafe(self._fail),
         )
@@ -226,7 +250,9 @@ class AudioDeviceAgent:
                     self._turn_id = None
                     self._marks = []
                     self._mark_cursor = 0
-            elif event.kind == "speech":
+            elif event.kind == "playback_start":
+                if event.session_id != self.controller.session_id or event.turn_id != self.controller.turn_id:
+                    continue
                 if event.payload["sample_rate"] != 48000:
                     self.controller.emit("audio_warning", message="Неверная частота синтеза речи")
                     continue

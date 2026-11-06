@@ -1,0 +1,17 @@
+{
+  "status": "voice_approved",
+  "voice": "Silero v5 Russian aidar",
+  "approved_by": "user",
+  "confirmation": "Подходит, утверждаю голос",
+  "recorded_at_utc": "2026-11-05T15:57:58.077124+00:00",
+  "scope": "Timbre and delivery in the exact generated greeting sample",
+  "sample": {
+    "file": "assets/preview/voice/aidar-ru.wav",
+    "sha256": "3965c6a35b37eaeba95a0c7f291543b2c639f3bc4fbaa609f740301e6b6211da",
+    "text": "Здравствуйте. Я виртуальный помощник деканата. Помогу найти информацию об учёбе и документах."
+  },
+  "model_sha256": "7ba04d42340fe0398042eed2e0d12d62e23096d626b1b9feff4dcb1309197ab4",
+  "physical_audio_verified": false,
+  "face_sync_verified": false,
+  "extended_pronunciation_qualification_complete": false
+}

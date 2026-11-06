@@ -29,6 +29,8 @@ async def test_cancellation_terminates_subprocess(controller, monkeypatch):
     monkeypatch.setattr("decanat.providers.shutil.which", lambda name: "/bin/codex")
     monkeypatch.setattr("decanat.providers.asyncio.create_subprocess_exec", spawn)
     monkeypatch.setenv("OPENAI_API_KEY", "must-not-go-to-subscription-mode")
+    monkeypatch.setenv("SYSTEMROOT", "C:\\Windows")
+    monkeypatch.setenv("SYSTEMDRIVE", "C:")
     adapter = CodexProvider(controller.settings)
     task = asyncio.create_task(adapter.generate("справка", [], []))
     await asyncio.sleep(0.01)
@@ -39,8 +41,11 @@ async def test_cancellation_terminates_subprocess(controller, monkeypatch):
     args = captured["args"]
     assert "--ignore-user-config" in args and "--ephemeral" in args
     assert "features.shell_tool=false" in args
+    assert "features.view_image=false" in args
     assert 'web_search="disabled"' in args
     assert "OPENAI_API_KEY" not in captured["env"]
+    assert captured["env"]["SYSTEMROOT"] == "C:\\Windows"
+    assert captured["env"]["SYSTEMDRIVE"] == "C:"
 
 
 async def test_invalid_answer_never_triggers_paid_fallback(controller):

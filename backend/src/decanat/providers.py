@@ -4,6 +4,7 @@ import asyncio
 import json
 import os
 import shutil
+import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -155,7 +156,7 @@ class CodexProvider:
                 "features.computer_use": False,
                 "features.hooks": False,
                 "features.memories": False,
-                "tools.view_image": False,
+                "features.view_image": False,
                 "web_search": "disabled",
                 "mcp_servers": {},
                 "approval_policy": "never",
@@ -177,6 +178,8 @@ class CodexProvider:
                 "TMP",
                 "CODEX_HOME",
                 "SystemRoot",
+                "SystemDrive",
+                "ProgramData",
                 "WINDIR",
                 "USERPROFILE",
                 "APPDATA",
@@ -187,13 +190,19 @@ class CodexProvider:
                 "NO_PROXY",
                 "SSL_CERT_FILE",
             }
-            environment = {key: value for key, value in os.environ.items() if key in allowed}
+            # Windows normalizes environment keys to uppercase. Preserve required
+            # system paths without accidentally inheriting service credentials.
+            allowed_folded = {key.casefold() for key in allowed}
+            environment = {
+                key: value for key, value in os.environ.items() if key.casefold() in allowed_folded
+            }
             process = await asyncio.create_subprocess_exec(
                 *args,
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
                 env=environment,
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
             )
             try:
                 stdout, stderr = await process.communicate(
@@ -225,7 +234,7 @@ class CodexProvider:
             if not output.exists() or output.stat().st_size > 100_000:
                 raise ProviderError("invalid_output", "Сервис не вернул корректный ответ", False)
             try:
-                answer = GeneratedAnswer.model_validate_json(output.read_text())
+                answer = GeneratedAnswer.model_validate_json(output.read_text(encoding="utf-8"))
             except ValueError as exc:
                 raise ProviderError(
                     "invalid_output", "Сервис вернул ответ неверного формата", False

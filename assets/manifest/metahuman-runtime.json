@@ -1,0 +1,545 @@
+{
+  "engine_patch": "5.6.1",
+  "pipeline": "UE Optimized / High (BP_DefaultLegacyPipeline_High)",
+  "generated_class": "/Game/MetaHumans/Assembled/Decanat/BP_Decanat.BP_Decanat_C",
+  "body_component_load_verified": true,
+  "skeletal_components": [
+    {
+      "name": "Body",
+      "mesh": "/Game/MetaHumans/Assembled/Decanat/Body/SKM_MC_Decanat_BodyMesh.SKM_MC_Decanat_BodyMesh",
+      "skeleton": "/MetaHumanCharacter/Female/Medium/NormalWeight/Body/metahuman_base_skel.metahuman_base_skel"
+    },
+    {
+      "name": "Face",
+      "mesh": "/Game/MetaHumans/Assembled/Decanat/Face/SKM_MC_Decanat_FaceMesh.SKM_MC_Decanat_FaceMesh",
+      "skeleton": "/MetaHumanCharacter/Face/Face_Archetype_Skeleton.Face_Archetype_Skeleton"
+    },
+    {
+      "name": "SkeletalMesh",
+      "mesh": "/Game/MetaHumans/Assembled/Decanat/Clothing/MC_Decanat_Outfits.MC_Decanat_Outfits",
+      "skeleton": "/MetaHumanCharacter/Female/Medium/NormalWeight/Body/metahuman_base_skel.metahuman_base_skel"
+    }
+  ],
+  "appearance_approved": false,
+  "runtime_animations_verified": false,
+  "packaged_build_verified": false,
+  "assets": [
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Body/Baked/T_Body_BC.uasset",
+      "size_bytes": 3265864,
+      "sha256": "1d884055e67cfa94948ce76ebf58c9fd9223e4db8a235a0dbd5d6dd2d56fd4c8"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Body/Baked/T_Body_N.uasset",
+      "size_bytes": 6229194,
+      "sha256": "a80100ef2dcfdc0ef2be2990194dacc994a1d0c2ca1b3662d114a1cdebb25624"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Body/Baked/T_Body_Scatter.uasset",
+      "size_bytes": 685139,
+      "sha256": "8479bd136efa9d3f248d8afd8448476b903fe31ab4a16bd50dbcdb65abfa73cf"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Body/Baked/T_Body_SRMF.uasset",
+      "size_bytes": 7958578,
+      "sha256": "f2f3cbce2113526a4d5501a7d924049870696d7446c24357761d46b57c8d3601"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Body/Materials/MI_Body_Baked.uasset",
+      "size_bytes": 9201,
+      "sha256": "f65999a18cdacfb7eccf1a8adee07000a51e039c05618942c6116cb72c2bd647"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Body/PHYS_MC_Decanat.uasset",
+      "size_bytes": 213878,
+      "sha256": "93b87333b1d749f4b9f63a13cc757b46fedeb8c865bc270ac38a538449bac145"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Body/SKM_MC_Decanat_BodyMesh.uasset",
+      "size_bytes": 13676780,
+      "sha256": "dedb409a7716b2501b55aa4a38b643aa5d267551c181bdaa7284ba48160af820"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/BP_Decanat.uasset",
+      "size_bytes": 209927,
+      "sha256": "59ac105a36ea2594da8847cbe6bb7c5f438736be894f247ddc624a0e6941f165"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Clothing/MC_Decanat_Outfits.uasset",
+      "size_bytes": 4855642,
+      "sha256": "6656f2585a41ef6c17c136b49d33166c22640e0c11f84d3db79f51b446019ebe"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Clothing/MID_M_DG_bodyShapeD_Shirt_48.uasset",
+      "size_bytes": 6977,
+      "sha256": "04a86ba17ae43a87cee04482081439fea31a67afdee643a6f697822574883725"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Clothing/MID_M_DG_bodyShapeD_Short_47.uasset",
+      "size_bytes": 7025,
+      "sha256": "ae94419506bc3652dd387bd6c8e58c212ad0f17b88c6f161e9bcc28ef4d67731"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_BakedNormal_LOD3.uasset",
+      "size_bytes": 102481,
+      "sha256": "086f6a2cca74c0854ba5777ace37e25e8bd4428f4a3228b185a0d5e22b836b3e"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_BakedNormal_LOD4.uasset",
+      "size_bytes": 108252,
+      "sha256": "14072e6be01bccda5ee685c0f934649d1a0d542f41fee3a5f0a796b352bbf5e0"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_BakedNormal_LOD5.uasset",
+      "size_bytes": 114205,
+      "sha256": "326317770a82dd0e292ef6d52a4264084efc9a94e28cf221b34dd6307591eae0"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_EyeIrisL_BC.uasset",
+      "size_bytes": 637154,
+      "sha256": "7f271c024db844cdab660e9fa4d1a9fb51ad42ba3888c90ecf84c276fddea0f9"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_EyeIrisL_N.uasset",
+      "size_bytes": 1255102,
+      "sha256": "c4ee14fe183ea38c175b8cca7d60b55d5ea746a938634be2f47f6bbb8d483a4f"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_EyeIrisR_BC.uasset",
+      "size_bytes": 637154,
+      "sha256": "8de90413a91c48fce23c38dd04708dc905cefda93fbef1c1f95a15309c235a31"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_EyeIrisR_N.uasset",
+      "size_bytes": 1255102,
+      "sha256": "97e18ea046e533a3838ac42f788f700a80cde7395b372d49d85ba309618dfe6a"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_EyeScleraL_BC.uasset",
+      "size_bytes": 1025699,
+      "sha256": "a6750c3e6ed3dccf17a1b5e56cabfb2e4e4dc02d8d9b5656c8bb4bda2a01f62c"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_EyeScleraL_N.uasset",
+      "size_bytes": 903661,
+      "sha256": "d9d4005e48662b59d02fe259028d44dd03342ef49051d4883fb96953a807d26d"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_EyeScleraR_BC.uasset",
+      "size_bytes": 981645,
+      "sha256": "a5bee526b0e91d5e583f85e6ac1699480a47d657c5a357ab837c33eeeb66f565"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_EyeScleraR_N.uasset",
+      "size_bytes": 892435,
+      "sha256": "585073f9c1d7db182bd9739940b3de1b8f878f028c4cb84c0131d4ad737123d1"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Head_LOD1_BC.uasset",
+      "size_bytes": 5048323,
+      "sha256": "6fd81da8405a7a1fe99db53d72f634abfda2bac33cbc52cf4bec57f3925e4ac0"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Head_LOD1_N.uasset",
+      "size_bytes": 40199300,
+      "sha256": "e64f61b23cb082931629ef6b44326027cbb44b65d691e227c01745c41b8cd5db"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Head_LOD1_Scatter.uasset",
+      "size_bytes": 127742,
+      "sha256": "4c203ad2a82592d78b1320186d4808d9900558125a54b9448926bdbe9dd2110c"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Head_LOD1_SRMF.uasset",
+      "size_bytes": 73308692,
+      "sha256": "564d7b7197717feb9d285985b5c09b40dff6a9e68d7214a40d8df69d5ad28f66"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Head_LOD5to7_BC.uasset",
+      "size_bytes": 5200344,
+      "sha256": "5f3f895476efa82ac327d832b1fdbc401d56e9e1abbb28755760461751130d4c"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Head_LOD5to7_N.uasset",
+      "size_bytes": 43176526,
+      "sha256": "242860bb4d758ab1fc2d597cf7044a5033c85655d170d36fb4b5d98a90d426cb"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Head_LOD5to7_Scatter.uasset",
+      "size_bytes": 140372,
+      "sha256": "f425b1b9cd1cfa62fd4e453361557e1893ef42ada4406e4add0ff251216e6c46"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Head_LOD5to7_SRMF.uasset",
+      "size_bytes": 59534040,
+      "sha256": "8b91bf843990988e7c4078002ee50ef844871f08765b385e21b73037f12199fb"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Teeth_BC.uasset",
+      "size_bytes": 1008407,
+      "sha256": "bf3ed2dee6b7189f729dbed1c454b0a74f0eeddd0c963af1cc0754304bd2fcb8"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Teeth_N.uasset",
+      "size_bytes": 1781411,
+      "sha256": "a67037bfa50a935b972447eeacf854b09a038c6b76cf1a4e8d1e2f838b21247f"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Teeth_Scatter.uasset",
+      "size_bytes": 6174,
+      "sha256": "6875140b1a3301b16763d013537b918b8cbc79ef670674456622101d2c336eab"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Baked/T_Teeth_SRM.uasset",
+      "size_bytes": 276515,
+      "sha256": "4a87ead39ee096abb9f445c7accd270702fe8adbcdd6f20a1722c406ef2bd625"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Materials/MI_EyeL_Baked.uasset",
+      "size_bytes": 7288,
+      "sha256": "7e3bece4409eb03c6becd26d770dd25d8b1a01c95e3d1950c1e93822ca0bc37d"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Materials/MI_EyeR_Baked.uasset",
+      "size_bytes": 10363,
+      "sha256": "eb9832c55e5788a7f1effd421224e8e0c68b023aa648ccfbcbd395589aa059d8"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Materials/MI_Face_EyelashesHiLODs.uasset",
+      "size_bytes": 7159,
+      "sha256": "d07d09bda6639a02f771b154c8f08bfe7476aa26f89258beaa8799ccad32d0f0"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Materials/MI_Face_EyeShell.uasset",
+      "size_bytes": 5135,
+      "sha256": "4cf2a9382d63accb411dad4ef0e22172e1cf1cb3f735cf619a01c704fc00af6f"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Materials/MI_Face_LacrimalFluid.uasset",
+      "size_bytes": 5195,
+      "sha256": "f5104cb839f6de659e2b7dde946287d69a55cbbf4cbc6e5c95bee2ac66cc74c0"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Materials/MI_Face_Skin_Baked_LOD1.uasset",
+      "size_bytes": 6616,
+      "sha256": "dcfb44b6cdd5da91b3ae7b5ff52d852577a38e1c08f675cba7b8916e5bf42b4b"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Materials/MI_Face_Skin_Baked_LOD3.uasset",
+      "size_bytes": 5184,
+      "sha256": "bf226f3923c7daf2160822d777c5622bb8dedd2d5ae411c4e196c45ae828a66f"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Materials/MI_Face_Skin_Baked_LOD5to7.uasset",
+      "size_bytes": 10353,
+      "sha256": "b889c60b4af6017779fb28299f729043ee80f396ead7912020dcc660ee6417db"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Materials/MI_Teeth_Baked.uasset",
+      "size_bytes": 5977,
+      "sha256": "5080f1f2f30705f0b7294a8226837d0dee4026de2031b50d7e8e674caa0dba2c"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/SKM_MC_Decanat_FaceMesh.uasset",
+      "size_bytes": 13765883,
+      "sha256": "cf7955f456aa69a96ebf6ba3e23981ccce31eb9173045dc90ff84d1b307884e5"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Face/Textures/T_Face_Basecolor_Animated_CM1.uasset",
+      "size_bytes": 195299,
+      "sha256": "051a95cca7e9afb7bbac864233efed24c33623d6ee5cce4963cadf5d4247c487"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Beard_M_MuttonChops.uasset",
+      "size_bytes": 4039479,
+      "sha256": "6e1f4fa1699c9fe74491a51ca50e1ce27f26ceb823125cc8df79f1e299c8564e"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Beard_M_MuttonChops_Binding.uasset",
+      "size_bytes": 7125,
+      "sha256": "b658345aaf01fa8c768a56b93347e83d7c5fa8be76da1af6b2cfd8d72bfa2604"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Beard_M_MuttonChops_CardMesh_Group0_LOD0.uasset",
+      "size_bytes": 870831,
+      "sha256": "66ea953952b9d2d8bffd6b0cecdd6056b19fd6f34495bf43173b81408db0e17f"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Beard_M_MuttonChops_CardsMesh_Group0_LOD1.uasset",
+      "size_bytes": 541561,
+      "sha256": "de5cada6eb6f7a1d0af25e788f2e3c0a467c2111d2b01e461dc7bc74ebda2f22"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Beard_M_MuttonChops_CardsMesh_Group0_LOD2.uasset",
+      "size_bytes": 402424,
+      "sha256": "726f9d0b59c146e84f6509118df56f50191b50dd8c916a37d4f6c9b97d597182"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Beard_M_MuttonChops_CardsMesh_Group0_LOD3.uasset",
+      "size_bytes": 302208,
+      "sha256": "5529817e1ee2c86996ee988d53d1a1d6ea32bdd774e397e25e32ac48f6a8ce58"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Beard_M_MuttonChops_CardsMesh_Group0_LOD4.uasset",
+      "size_bytes": 174955,
+      "sha256": "fcc1bd9ccfc487cd48600055479380c60b901f835b60792fc49b1aa071b30a78"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Beard_M_MuttonChops_Helmet_LOD5.uasset",
+      "size_bytes": 48926,
+      "sha256": "2ee7428aff2fc287e599ed8be60693452447a7696d6156679d8745c8c08da8ce"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Beard_M_MuttonChops_Helmet_LOD6.uasset",
+      "size_bytes": 31505,
+      "sha256": "95cb4925eda1174297203207c3be319ec7ff75d6f64d015c4cd912af88fdaed0"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Beard_M_MuttonChops_Helmet_LOD7.uasset",
+      "size_bytes": 24354,
+      "sha256": "fdf2be5a1438687532a6143a6e9325ef3ae3c171e8dd2f0d657c2e4992e24827"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Eyebrows_M_FlatThick.uasset",
+      "size_bytes": 443016,
+      "sha256": "91b747644e87d4932f197f784964a090e436d74aca808f278d4048be5aa7459a"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Eyebrows_M_FlatThick_Binding.uasset",
+      "size_bytes": 7010,
+      "sha256": "8a4d06b45231f2287a5f7aeaff4d2722f650ef4761a14f54685a0dc989c3ef2b"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Eyebrows_M_FlatThick_CardsMesh_Group0_LOD0.uasset",
+      "size_bytes": 427277,
+      "sha256": "3bac2e4180522b5a3864ffefaa5bbde5fefc235251153995ab0a2e40576296f1"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Eyebrows_M_FlatThick_CardsMesh_Group0_LOD1.uasset",
+      "size_bytes": 260875,
+      "sha256": "a389eb73d49fe9417d3c33d670e7d8d22430bcc8351bf613e066789df8427a43"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Eyebrows_M_FlatThick_CardsMesh_Group0_LOD2.uasset",
+      "size_bytes": 183420,
+      "sha256": "9878680ab0638d4d2328bce7b461e3fc354b02c60a8edbcb180e5c28205179a9"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Eyebrows_M_FlatThick_CardsMesh_Group0_LOD3.uasset",
+      "size_bytes": 106318,
+      "sha256": "632a143831ef04830f2153d37fe8defb2d9ff4e97479d3b488e154026866e334"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Eyebrows_M_FlatThick_CardsMesh_Group0_LOD4.uasset",
+      "size_bytes": 62375,
+      "sha256": "24e1b4dfb23870bf2b13810b45a1d47c27ccef06b848d21eff776d518784d69f"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Eyelashes_S_Sparse.uasset",
+      "size_bytes": 68343,
+      "sha256": "b404fc9d943680722d1c7f13638794568c9dc59c52d2a8a6f96646538a7d33c7"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Eyelashes_S_Sparse_Binding.uasset",
+      "size_bytes": 7045,
+      "sha256": "e49a9914f94a4a3d9e66a0b609aaa0ec68439fca92e9b14dd5d25e38be64bfd7"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Hair_S_Casual.uasset",
+      "size_bytes": 19300661,
+      "sha256": "05dad28b3ca73bb405df97720492c80a9ff3f0522f28b55f63f06954aef5e897"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Hair_S_Casual_Binding.uasset",
+      "size_bytes": 6947,
+      "sha256": "0c152739fde5e85c58ef61c7aa5cfc489bb94569d9d8e0117b164f5ebaaf243c"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Hair_S_Casual_CardsMesh_Group0_LOD0.uasset",
+      "size_bytes": 1773135,
+      "sha256": "b1be36d8989b38a29ae0bbce708d9c3ac8cef11517adb1a9b5ff6051ff257055"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Hair_S_Casual_CardsMesh_Group0_LOD1.uasset",
+      "size_bytes": 1011041,
+      "sha256": "71f98d81b29568c714e59522c0246f97ce5d8cd9fd391438d040c28a29e19138"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Hair_S_Casual_CardsMesh_Group0_LOD2.uasset",
+      "size_bytes": 726923,
+      "sha256": "2bb025d933814a499b78bd200e925f0e86d721feff4efcf8ad3d691153e16ccc"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Hair_S_Casual_CardsMesh_Group0_LOD3.uasset",
+      "size_bytes": 421526,
+      "sha256": "fcc0e26b31f13d2ebe62c869c4c883e0f062b4bf298c0af05eecc0ea7dcfecc1"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Hair_S_Casual_CardsMesh_Group0_LOD4.uasset",
+      "size_bytes": 318473,
+      "sha256": "c47a2e8f9839a955632e6bb59c81b40282bcdfae97e451ee040fadcdf22434a8"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Hair_S_Casual_Helmet_LOD5.uasset",
+      "size_bytes": 101287,
+      "sha256": "11bf1a70a55d6731cdb38d01603f4787f221f5049870932390265cdde14a2633"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Hair_S_Casual_Helmet_LOD6.uasset",
+      "size_bytes": 77187,
+      "sha256": "f0151941e688b42add2da270a7c42da87fee8efaf5ea368a7c35d7eef9224889"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Hair_S_Casual_Helmet_LOD7.uasset",
+      "size_bytes": 68514,
+      "sha256": "dc073f8bb7c0d76d721dc49e10a7186beeffc3598f0fd9e042ce7c691f289289"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Facial_Hair_39.uasset",
+      "size_bytes": 7635,
+      "sha256": "4a0b899872f78613610f01b61492bddcab40338be44ab7555606c49960df9f49"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Facial_Hair_44.uasset",
+      "size_bytes": 8109,
+      "sha256": "a2910721f2750b7b7b7faaeb1ae67a69813457f2ebb183e6a163a2dabab005cb"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Hair_35.uasset",
+      "size_bytes": 12760,
+      "sha256": "48cb66e4cfba578bba2bb3e6ca797f7a5e30840dcb198c15f3706f200ce7b43a"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Hair_38.uasset",
+      "size_bytes": 9667,
+      "sha256": "5ce3f3f7fc1565f2a8ed058f92caa079220b80c74b59f365356a2f891733032d"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Hair_40.uasset",
+      "size_bytes": 10105,
+      "sha256": "bb5d24b3d6c9b3e27671822912958076add6b488367588824fd773437f85ea1e"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Hair_43.uasset",
+      "size_bytes": 9193,
+      "sha256": "e241ac1bb055969bff5fbe2a4ba199595adb3f6f2618c4b5629742d2d259f4c4"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Hair_46.uasset",
+      "size_bytes": 8755,
+      "sha256": "782bef5260b9afa9c96eefaf29480ccd92411601d34152d51d8d285986827425"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Hair_Cards_36.uasset",
+      "size_bytes": 12820,
+      "sha256": "f00786954a7a8fdfea6cb3b898aff1082cbea4640701f936f0aa842482428c06"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Hair_Cards_42.uasset",
+      "size_bytes": 10165,
+      "sha256": "edd1046148cc348fdea1570c2c36d183be03949b70e969b30b9f114bd23f791d"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Hair_Helmet_37.uasset",
+      "size_bytes": 12830,
+      "sha256": "8e9e36fed55452a90fc0819f9b42484893de2039342b2dbec97c4857aeedd34f"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Hair_Helmet_41.uasset",
+      "size_bytes": 10175,
+      "sha256": "88e7d6ea33078e5c30cd5cd8427f3979b4a254fa6fce5922aed31f1c918a6a6b"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/MID_MI_Hair_Helmet_45.uasset",
+      "size_bytes": 9263,
+      "sha256": "d8719feb886dd1b20fe5a467596ad28b67a090337629a878a899a5945e0e1a31"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Mustache_S_Horseshoe.uasset",
+      "size_bytes": 679708,
+      "sha256": "b4c89c3106f4e9b2bb7899b0844a555c2d0f8c6b7d1017e7d1cd0dd3a960906d"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Mustache_S_Horseshoe_Binding.uasset",
+      "size_bytes": 7010,
+      "sha256": "ae669c3705797b08c0b55c8b61c189e66a6c06955beba3ca77746f27de71dc8e"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Mustache_S_Horseshoe_CardMesh_Group0_LOD0.uasset",
+      "size_bytes": 535018,
+      "sha256": "472681e8877850fac0ca43d8781afdf4cacf4d3d5cc926078a4f2156f2af088a"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Mustache_S_Horseshoe_CardMesh_Group0_LOD1.uasset",
+      "size_bytes": 402659,
+      "sha256": "3b6ffbaf7adc96aec3eb79810d2de866574be63cb105095acddb0c5670bd2235"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Mustache_S_Horseshoe_CardMesh_Group0_LOD2.uasset",
+      "size_bytes": 250480,
+      "sha256": "2f97fece1393f7c9977e7fca49c95fff386e1db59356d7937d468f62167451fb"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Mustache_S_Horseshoe_CardMesh_Group0_LOD3.uasset",
+      "size_bytes": 157670,
+      "sha256": "9451e8f2cee9237493e671def920dd3ab4cf45d45d4aed3cf36b67f0a39f0d7e"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Mustache_S_Horseshoe_CardMesh_Group0_LOD4.uasset",
+      "size_bytes": 97681,
+      "sha256": "d6994c490e59d68abe6e2a164f6f13eb085040af744c4f977ede9ee7b7957465"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Mustache_S_Horseshoe_Helmet_LOD5.uasset",
+      "size_bytes": 49481,
+      "sha256": "0946d4095ee548664b14c8bd2751e84c592e064f5013d68a3d8e8714e7d973ae"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Mustache_S_Horseshoe_Helmet_LOD6.uasset",
+      "size_bytes": 31475,
+      "sha256": "d4247cd226c5acfbd4252d6b60b69e40b1bb22b1590d0fb3d3b08e1f3bf94535"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Mustache_S_Horseshoe_Helmet_LOD7.uasset",
+      "size_bytes": 24200,
+      "sha256": "d9c2a492466f6902b3d9da2262994fbd86ab3f0827bd1cb28a97c355d21ea7b2"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Textures/Beard_M_MuttonChops_RootUVSeedCoverage.uasset",
+      "size_bytes": 574939,
+      "sha256": "ad7cb291d44601eee870f12cb89e322652ff7a5c3e4ce983b32172cb3c25bf63"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Textures/Hair_S_Casual_CardsAtlas_Attribute.uasset",
+      "size_bytes": 5022120,
+      "sha256": "737bb345b3bd2ee79ddc38c99aa63caaad093ae7503fa4bbfe91cd5130ff575d"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Textures/Hair_S_Casual_RootUVSeedCoverage.uasset",
+      "size_bytes": 566676,
+      "sha256": "72f7b6809fb0235f81b767065b2563b9ad7d1ae03b6c841a74f25cbd18916e9e"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Textures/Texture2D_0.uasset",
+      "size_bytes": 574782,
+      "sha256": "c9e479f9717af07c856fec1435f0010f1526ea9adf45953c07abeccb0448b7d7"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Textures/Texture2D_1.uasset",
+      "size_bytes": 5021983,
+      "sha256": "ab57de813c7a6a8b4a10d0485c045016265b7071e0e4d3f029e61cb87cc85251"
+    },
+    {
+      "file": "desktop/Decanat/Content/MetaHumans/Assembled/Decanat/Grooms/Textures/Texture2D_2.uasset",
+      "size_bytes": 566549,
+      "sha256": "94f7870bb4628bc42b8ccb065a69f1f0ca1f2d50f83b5fd6900a07b6dc46f69f"
+    }
+  ],
+  "preview": {
+    "file": ".runtime/unreal/metahuman-preview.png",
+    "sha256": "de14debeca8fb9cbf68d31fbb7df1e59401c16f8047c7783977965c4781e2cf1",
+    "technical_preview_only": true,
+    "pose_animation": "/MetaHumanCharacter/Optional/Animation/UEFNAnimPreset/Locomotion/AS_MH_Neutral_Stand_Idle_Loop",
+    "runtime_animation_configuration_verified": false
+  }
+}

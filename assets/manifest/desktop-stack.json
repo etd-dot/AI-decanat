@@ -1,35 +1,194 @@
 {
-  "status": "candidate_not_compiled_or_accepted",
+  "status": "f04_development_installer_verified_clean_windows_and_production_qualification_pending",
   "target_os": "Windows 11 x64",
   "engine_family": "Unreal Engine 5.6",
-  "engine_patch_verified": null,
-  "download_login_available": false,
+  "engine_patch_verified": "5.6.1",
+  "download_login_available": true,
   "ace": {
     "candidate_archive": "nv_ace_reference-ue5.6-v2.5.0rc3.zip",
     "download_url": "https://developer.nvidia.com/downloads/assets/ace/nv_ace_reference-ue5.6-v2.5.0rc3.zip",
-    "sha256": null,
+    "sha256": "28b205418be6229c751df1fa57259eca59c0dc8d6039404007cfaca11d3f29d2",
     "download_requires": "NVIDIA Developer login",
-    "installed": false
+    "installed": true,
+    "version_verified": "2.5.0-20250614-2282",
+    "editor_build_verified": true,
+    "packaged_build_verified": true,
+    "local_inference_verified": true
   },
   "face_model": {
     "candidate": "Mark 3.0 diffusion",
     "provider": "LocalA2F-Mark",
     "plugin": "NvAudio2FaceMark",
     "download_url": "https://developer.nvidia.com/downloads/assets/ace/ace_3.0_a2f_models.zip",
-    "sha256": null,
-    "installed": false,
-    "license": "NVIDIA Open Model License; inspect actual downloaded package before redistribution"
+    "sha256": "9096e2df03c0eef3541b26c434f84d144514c45edb92e2b2a546e55050b982e3",
+    "installed": true,
+    "license": "NVIDIA Models Community License (2025.04.15), not the NVIDIA Open Model License",
+    "version_verified": "2.4.0-20250610-2270",
+    "production_license_qualification_complete": false
   },
   "character": {
     "type": "fictional MetaHuman",
-    "created": false,
-    "appearance_approved": false,
-    "asset_paths": []
+    "created": true,
+    "appearance_approved": true,
+    "asset_paths": [
+      "/Game/MetaHumans/Decanat/MC_Decanat",
+      "/Game/MetaHumans/Assembled/Decanat/BP_Decanat",
+      "/Game/Decanat/Characters/BP_DeanOffice",
+      "/Game/Decanat/Wardrobe/office_v4/SKM_OfficeOutfit"
+    ],
+    "asset_kind": "Editable MetaHuman Character, base UE Optimized Blueprint and project-specific office Blueprint",
+    "source_preset": "/MetaHumanCharacter/Optional/Presets/Bruce.Bruce",
+    "source_preset_sha256": "2b3f92639637c7bd1f0a2607d296ad36288ac62ccfb303f70cdbc5290e6d552f",
+    "prepared_asset_file": "desktop/Decanat/Content/MetaHumans/Decanat/MC_Decanat.uasset",
+    "prepared_asset_sha256": "1d81dcc23e5f7f1056683628b53a4d3c89bc74fe7cfb03c16309ca31f8b4ddb1",
+    "runtime_blueprint_created": true,
+    "face_rig_created": true,
+    "texture_sources_received": true,
+    "pending_requirement": "Production model qualification, packaging and system acceptance remain open; body, blink, local face and output-clock synchronisation passed",
+    "license_source": "https://www.metahuman.com/license",
+    "assembly_pipeline": "UE Optimized / High (BP_DefaultLegacyPipeline_High)",
+    "generated_class": "/Game/Decanat/Characters/BP_DeanOffice.BP_DeanOffice_C",
+    "runtime_body_component_load_verified": true,
+    "runtime_asset_manifest": "assets/manifest/office-avatar.json",
+    "runtime_asset_manifest_sha256": "00654c3cc40ab4116a23c4b0f3b3dca8bdc31ccefe578b0a7e83980582bb02da",
+    "preview": {
+      "file": "assets/preview/f01/standing.png",
+      "sha256": "6a4a0f07ac430c26858f91fb1e27b997da096b53b70c9ef352a2f72f58d14180",
+      "appearance_approved": true,
+      "body_motion_configuration_verified": true,
+      "full_avatar_ready": false
+    },
+    "base_runtime_asset_manifest": "assets/manifest/metahuman-runtime.json",
+    "body_animations_pie_verified": true,
+    "appearance_approval": {
+      "approved_by": "user",
+      "recorded_at_utc": "2026-11-04T14:20:42.060748+00:00",
+      "confirmation": "Подходит, утверждаю образ",
+      "scope": [
+        "face",
+        "hairstyle",
+        "clothing",
+        "office_scene"
+      ],
+      "preview_sha256": {
+        "standing": "6a4a0f07ac430c26858f91fb1e27b997da096b53b70c9ef352a2f72f58d14180",
+        "seated": "ada58547b8a1ffaea8850a521004c20ee2902ce6f98c055b7df90abee75a9ac5",
+        "rising": "50118c5feba2adf8bfe77ba186e6a04a1d81583171976a660e5181c875f104a9",
+        "sitting": "01654925db485584d6e66e1faadae158e4523ad9c5c25dea77dc874c4926e41a"
+      },
+      "voice_approved": false
+    }
   },
   "sources": [
     "https://developer.nvidia.com/ace-for-games",
     "https://archive.docs.nvidia.com/ace/ace-unreal-plugin/2.5/ace-unreal-plugin-install.html",
     "https://archive.docs.nvidia.com/ace/ace-unreal-plugin/2.5/ace-unreal-plugin-support-matrix.html",
     "https://archive.docs.nvidia.com/ace/ace-unreal-plugin/2.5/ace-unreal-plugin-animation.html"
-  ]
+  ],
+  "engine_verification": {
+    "changelist": 44394996,
+    "build_version_sha256": "b6a16a262d0136d1812f134ebd83e81138546dcc705f5f088a96702c970d24a0",
+    "target": "DecanatEditor Win64 Development",
+    "ace_enabled": true,
+    "base_module_build_succeeded": true,
+    "editor_tools_build_verified": true,
+    "packaged_build_verified": true,
+    "game_target_build_succeeded_without_ace": true,
+    "packaged_target": "Decanat Win64 Development"
+  },
+  "scene": {
+    "map": "/Game/Decanat/Office",
+    "created_in_unreal": true,
+    "generator": "tools/create_unreal_scene.py",
+    "visual_approval": true,
+    "assets": [
+      {
+        "file": "desktop/Decanat/Content/Decanat/Materials/M_Desk.uasset",
+        "sha256": "e11b835ab9a78f5c12d64d924405a903ec3c0e444708d97dd197da6e5caaaa14"
+      },
+      {
+        "file": "desktop/Decanat/Content/Decanat/Materials/M_Floor.uasset",
+        "sha256": "3b8a9ecc0e6433e2abc560eb29b9afcd9ffbfa8ae233c6cc5f80c6b616b109db"
+      },
+      {
+        "file": "desktop/Decanat/Content/Decanat/Materials/M_Metal.uasset",
+        "sha256": "929b8d83b694184cde1b4ede39ede9f2b8ab53977a3d8fe3d189d44c9455696c"
+      },
+      {
+        "file": "desktop/Decanat/Content/Decanat/Materials/M_Panel.uasset",
+        "sha256": "a5549c07403335b1340d186afbca897fd8d99c75171da74951ab2ff68680084b"
+      },
+      {
+        "file": "desktop/Decanat/Content/Decanat/Materials/M_Paper.uasset",
+        "sha256": "ab0c69820d92fa985f846f74e43a7dacbf888154ffadc7c2fd1fff2ba08dc61f"
+      },
+      {
+        "file": "desktop/Decanat/Content/Decanat/Materials/M_Screen.uasset",
+        "sha256": "9a79e72b7413bec98739d53569ce87580a0ace0db500ecabdd0e4ee16e31e7d8"
+      },
+      {
+        "file": "desktop/Decanat/Content/Decanat/Materials/M_Seat.uasset",
+        "sha256": "24188d2e10c4af3ad00f2aede8fe94567864bc1f156df869b3f54d77e60a38c7"
+      },
+      {
+        "file": "desktop/Decanat/Content/Decanat/Materials/M_Wall.uasset",
+        "sha256": "304317b4ebba228be02f1b63d9b021a30dab86c07693469ed73c4e7b20e6a904"
+      },
+      {
+        "file": "desktop/Decanat/Content/Decanat/Office.umap",
+        "sha256": "17ba46e589e121d315d581a11a7e07170d8caef2839624c35eaeaa9a9db17833"
+      }
+    ],
+    "render_created_in_unreal": true,
+    "render_file": "assets/preview/f01/seated.png",
+    "render_sha256": "ada58547b8a1ffaea8850a521004c20ee2902ce6f98c055b7df90abee75a9ac5",
+    "fixed_camera_exposure": "manual physical exposure: ISO 400, shutter 1/60 s, f/4",
+    "character_reference_saved": true,
+    "character_class": "/Game/Decanat/Characters/BP_DeanOffice.BP_DeanOffice_C",
+    "body_animation_references_saved": true,
+    "movement_layout": {
+      "avatar_root_cm": [
+        45,
+        0,
+        0
+      ],
+      "avatar_yaw_degrees": -90,
+      "chair_seat_centre_cm": [
+        10,
+        0,
+        45
+      ],
+      "seat_surface_z_cm": 47,
+      "seated_pelvis_z_cm": 53
+    }
+  },
+  "epic_metahuman_login_verified": true,
+  "authoring_memory": {
+    "physical_ram_gib": 16,
+    "pagefile_allocated_mib": 16384,
+    "pagefile_maximum_mib": 32768,
+    "original_rig_import_oom_reproduced_after_increase": false,
+    "runtime_memory_qualification_complete": false
+  },
+  "f01_complete": true,
+  "windows_runtime_checks": {
+    "file": "assets/manifest/windows-runtime-checks.json",
+    "sha256": "1ca9a28d95ab55cd01a23d3c91c208ea7eae42426a7eb2a1a5b5da544e218799"
+  },
+  "voice": {
+    "approved": true,
+    "manifest": "assets/manifest/voice.json",
+    "manifest_sha256": "5151dde5c994b9802d9716112c410c89246f33f5a987ed059aff781b532d9c67"
+  },
+  "ace_runtime_manifest": {
+    "file": "assets/manifest/ace-runtime.json",
+    "sha256": "77c0c35ba5fe809c5a56eb78f3535656f790351d3bec57a520e235f12da73950"
+  },
+  "f02_complete": true,
+  "f03_technical_runtime_verified": true,
+  "full_product_ready": false,
+  "windows_distribution": {
+    "file": "assets/manifest/windows-distribution.json",
+    "sha256": "23f14fd6b2e814209eaa50a0a3033059ffd11d64b9f673200b41e7e86c4e0ba2"
+  }
 }

@@ -322,7 +322,16 @@ def create_app(root: Path, ipc_token: str, *, conversation: Conversation | None 
     async def websocket(ws: WebSocket):
         nonlocal client_connected
         supplied = ws.headers.get("authorization", "")
-        if ws.headers.get("origin") or not secrets.compare_digest(supplied, f"Bearer {ipc_token}"):
+        origin = ws.headers.get("origin")
+        # UE 5.6 libwebsockets unconditionally sets a loopback Origin. Browsers
+        # cannot supply the native marker or Authorization in WebSocket().
+        # Keep HTTP's strict Origin guard and reject every other WS origin.
+        native_loopback = (
+            origin == "http://127.0.0.1"
+            and ws.url.hostname == "127.0.0.1"
+            and ws.headers.get("x-decanat-client") == "unreal-desktop"
+        )
+        if (origin and not native_loopback) or not secrets.compare_digest(supplied, f"Bearer {ipc_token}"):
             await ws.close(code=1008)
             return
         if client_connected:
@@ -351,6 +360,8 @@ def create_app(root: Path, ipc_token: str, *, conversation: Conversation | None 
                 try:
                     command = ClientCommand.model_validate_json(raw)
                     async with controller_lock:
+                        if command.type == "face_ready" and command.session_id != controller.session_id:
+                            continue  # A late renderer callback must not affect the next student.
                         if (
                             command.type not in {"start"}
                             and command.session_id != controller.session_id
@@ -372,6 +383,8 @@ def create_app(root: Path, ipc_token: str, *, conversation: Conversation | None 
                             await controller.finish()
                         elif command.type == "avatar_ready":
                             controller.avatar_ready()
+                        elif command.type == "face_ready":
+                            controller.face_ready(command.turn_id)
                         elif command.type == "text":
                             await controller.submit(command.text)
                         elif command.type == "speech_start":

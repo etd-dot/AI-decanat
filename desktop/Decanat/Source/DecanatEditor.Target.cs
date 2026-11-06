@@ -8,5 +8,6 @@ public class DecanatEditorTarget : TargetRules
         Type = TargetType.Editor;
         DefaultBuildSettings = BuildSettingsVersion.V5;
         ExtraModuleNames.Add("Decanat");
+        ExtraModuleNames.Add("DecanatEditorTools");
     }
 }

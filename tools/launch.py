@@ -17,6 +17,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("desktop", type=Path, help="Path to the packaged Decanat executable")
     parser.add_argument("--data-dir", type=Path, default=Path(".runtime"))
+    parser.add_argument("--windowed", action="store_true", help="Open a movable preview window")
     args = parser.parse_args()
     if not args.desktop.is_file():
         parser.error("Packaged desktop executable is not installed")
@@ -25,8 +26,15 @@ def main():
     connection_file.unlink(missing_ok=True)
     environment = dict(os.environ)
     environment["DECANAT_CONNECTION_FILE"] = str(connection_file)
+    python_flags = ["-I"] if sys.flags.isolated else []
+    if sys.flags.dont_write_bytecode:
+        python_flags.append("-B")
+    if os.name == "nt":
+        python_flags.extend(["-X", "utf8"])
     backend = subprocess.Popen(
-        [sys.executable, "-m", "decanat.cli", "--data-dir", str(root), "serve"], env=environment
+        [sys.executable, *python_flags, "-m", "decanat.cli", "--data-dir", str(root), "serve"],
+        env=environment,
+        creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
     )
     desktop = None
     try:
@@ -36,7 +44,7 @@ def main():
                 raise RuntimeError("Backend failed to start")
             if connection_file.exists():
                 try:
-                    data = json.loads(connection_file.read_text())
+                    data = json.loads(connection_file.read_text(encoding="utf-8"))
                     request = urllib.request.Request(
                         data["url"] + "/v1/health",
                         headers={"Authorization": "Bearer " + data["token"]},
@@ -49,8 +57,10 @@ def main():
             time.sleep(0.2)
         else:
             raise RuntimeError("Backend startup timed out")
+        display = ["-windowed", "-ResX=1600", "-ResY=900"] if args.windowed else ["-fullscreen"]
         desktop = subprocess.Popen(
-            [str(args.desktop.resolve()), "-fullscreen", "-NoSplash"], env=environment
+            [str(args.desktop.resolve()), *display, "-NoSplash", f"-abslog={root / 'desktop.log'}"],
+            env=environment,
         )
         while desktop.poll() is None:
             if backend.poll() is not None:

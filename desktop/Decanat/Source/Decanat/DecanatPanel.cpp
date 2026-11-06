@@ -269,6 +269,10 @@ FReply SDecanatPanel::Diagnostics()
                 Data->GetBoolField(TEXT("api_key_configured")) ? TEXT("да") : TEXT("нет"));
             if(Health->GetBoolField(TEXT("restart_required"))) Text+=TEXT("Приложение ожидает перезапуска после изменения аудионастроек.\n");
             Text+=Health->GetStringField(TEXT("knowledge_error"))+TEXT("\n")+Health->GetStringField(TEXT("audio_error"))+TEXT("\n");
+            auto* Avatar=Self->World.IsValid() ? Cast<ADecanatAvatar>(UGameplayStatics::GetActorOfClass(Self->World.Get(),ADecanatAvatar::StaticClass())) : nullptr;
+            if (!Avatar) Text+=TEXT("Аватар отсутствует на карте.\n");
+            else if (Avatar->IsConfigured()) Text+=TEXT("Аватар: компоненты подключены; требуется визуальная приёмка.\n");
+            else Text+=TEXT("Аватар: ")+Avatar->GetConfigurationIssue()+TEXT("\n");
             Text+=Data->GetObjectField(TEXT("audio"))->GetStringField(TEXT("message"))+TEXT("\n");
             for(const auto& Item:Data->GetObjectField(TEXT("audio"))->GetArrayField(TEXT("devices"))) {
                 const auto Device=Item->AsObject();

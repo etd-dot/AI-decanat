@@ -32,6 +32,9 @@ void UDecanatClient::Initialize(FSubsystemCollectionBase& Collection)
     FString WebSocketUrl = BaseUrl.Replace(TEXT("http://"), TEXT("ws://")) + TEXT("/v1/conversation");
     TMap<FString, FString> Headers;
     Headers.Add(TEXT("Authorization"), TEXT("Bearer ") + Token);
+    // UE's libwebsockets always emits Origin: http://127.0.0.1. A separate
+    // native-only header lets the backend recognize that narrow IPC handshake.
+    Headers.Add(TEXT("X-Decanat-Client"), TEXT("unreal-desktop"));
     Socket = FWebSocketsModule::Get().CreateWebSocket(WebSocketUrl, TEXT(""), Headers);
     Socket->OnConnected().AddLambda([this]() { bConnected = true; });
     Socket->OnConnectionError().AddLambda([this](const FString&) {
@@ -101,6 +104,19 @@ void UDecanatClient::Request(const FString& Method, const FString& Route, const 
         Complete(Success && Response ? Response->GetResponseCode() : 0, Response ? Response->GetContentAsString() : TEXT("Нет соединения"));
     });
     Request->ProcessRequest();
+}
+
+void UDecanatClient::SendForTurn(const FString& Type, const FString& Session, const FString& Turn)
+{
+    if (!Socket || !Socket->IsConnected() || Session.IsEmpty() || Turn.IsEmpty() ||
+        Session != SessionId || Turn != TurnId) return;
+    auto Data = MakeShared<FJsonObject>();
+    Data->SetStringField(TEXT("type"), Type);
+    Data->SetStringField(TEXT("session_id"), Session);
+    Data->SetStringField(TEXT("turn_id"), Turn);
+    FString Message;
+    FJsonSerializer::Serialize(Data, TJsonWriterFactory<>::Create(&Message));
+    Socket->Send(Message);
 }
 
 void UDecanatClient::RequestBinary(const FString& Route, const TArray<uint8>& Bytes, TFunction<void(int32, const FString&)> Complete)

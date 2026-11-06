@@ -1,0 +1,248 @@
+{
+  "status": "f01_complete_appearance_approved",
+  "engine_patch": "5.6.1",
+  "generated_class": "/Game/Decanat/Characters/BP_DeanOffice.BP_DeanOffice_C",
+  "source_preset": "Epic Bruce from MetaHuman Creator Core Data",
+  "base_runtime_manifest": {
+    "file": "assets/manifest/metahuman-runtime.json",
+    "size_bytes": 25929,
+    "sha256": "9206a1c4047921640c1e0f4de16e41c36edecb6d812673a397f6794040226d6a"
+  },
+  "wardrobe": {
+    "asset": "/Game/Decanat/Wardrobe/office_v4/SKM_OfficeOutfit",
+    "source": {
+      "file": "assets/source/avatar/office-outfit-office_v4.blend",
+      "size_bytes": 4981079,
+      "sha256": "0cdaeccbb0609fd96ce9feed6caf42945a1523dd99d3d711a8683357a74e3dd2"
+    },
+    "provenance": "Derived from Epic Default Garment topology and reference skin weights; new sleeves, trouser legs, lapels, collar, details and shoes authored by project script",
+    "generator": {
+      "file": "tools/author_avatar_outfit.py",
+      "size_bytes": 16672,
+      "sha256": "f32f357fd74903858e6c9a68db370cf219c257629397b4ba2da1c279819030e3"
+    }
+  },
+  "motion": {
+    "clips": {
+      "SitIdle": "/Game/Decanat/Animations/office_v5/AS_SitIdle.AS_SitIdle",
+      "Stand": "/Game/Decanat/Animations/office_v5/AS_Stand.AS_Stand",
+      "StandIdle": "/Game/Decanat/Animations/office_v5/AS_StandIdle.AS_StandIdle",
+      "Sit": "/Game/Decanat/Animations/office_v5/AS_Sit.AS_Sit"
+    },
+    "fps": 30,
+    "idle_seconds": 4.0,
+    "transition_seconds": 2.4,
+    "generator": {
+      "file": "tools/author_avatar_motion.py",
+      "size_bytes": 8297,
+      "sha256": "fe43d11962ab5506a85f4f8b760554a3c1b7ee9963a090d08691b3b6fe3d52b2"
+    },
+    "recipe": {
+      "file": "assets/source/avatar/motion-recipe.json",
+      "size_bytes": 724,
+      "sha256": "b3835516d3c0943cd8c65b100806273b238384c7fe53c01fe671dfc220c9d26e"
+    },
+    "engine_samples": 388,
+    "max_ankle_drift_cm": 0.013052702730626519,
+    "geometry": {
+      "SitIdle": {
+        "samples": 121,
+        "max_ankle_drift_cm": 0.0,
+        "max_sample_step_cm": 0.015986811720874045,
+        "largest_step_frame": 54,
+        "largest_step_bone": "head"
+      },
+      "StandIdle": {
+        "samples": 121,
+        "max_ankle_drift_cm": 0.0,
+        "max_sample_step_cm": 0.02073208352916283,
+        "largest_step_frame": 118,
+        "largest_step_bone": "head"
+      },
+      "Stand": {
+        "samples": 73,
+        "max_ankle_drift_cm": 0.010503819414003695,
+        "max_sample_step_cm": 2.097245453897164,
+        "largest_step_frame": 34,
+        "largest_step_bone": "lowerarm_r"
+      },
+      "Sit": {
+        "samples": 73,
+        "max_ankle_drift_cm": 0.013052702730626519,
+        "max_sample_step_cm": 2.096522186454105,
+        "largest_step_frame": 36,
+        "largest_step_bone": "lowerarm_r"
+      }
+    },
+    "engine_contact_and_boundary_checks_passed": true,
+    "pie_controller_cycle_passed": true,
+    "runtime_placement_error_cm": 0.0,
+    "verification_report": {
+      "file": ".runtime/unreal/office-motion-verification.json",
+      "size_bytes": 10174,
+      "sha256": "d859ee6429815033a477fafa9b7fec1edb78c8db8cda932e0626057f456e7826"
+    }
+  },
+  "builds": {
+    "editor_target_without_ace": true,
+    "game_target_without_ace": true,
+    "game_build_report": {
+      "file": ".runtime/unreal/build-game-no-ace.json",
+      "size_bytes": 200,
+      "sha256": "a0dce5f3f7e00f414f9865648351c460a9be923b511e9defdaa7f477e49bc7ae"
+    },
+    "packaged_build_verified": false
+  },
+  "blender": {
+    "version": "4.5.15 LTS",
+    "archive_url": "https://download.blender.org/release/Blender4.5/blender-4.5.15-windows-x64.zip",
+    "archive_sha256": "52dd02fd74877fa08e74b67d7854cf32468a232c02aaa19b6844c91285574f8d",
+    "checksum_source": "https://download.blender.org/release/Blender4.5/blender-4.5.15.sha256",
+    "tool_only": true,
+    "license_source": "Included copyright.txt and https://www.blender.org/about/license/"
+  },
+  "previews": {
+    "standing": {
+      "file": "assets/preview/f01/standing.png",
+      "size_bytes": 807683,
+      "sha256": "6a4a0f07ac430c26858f91fb1e27b997da096b53b70c9ef352a2f72f58d14180"
+    },
+    "seated": {
+      "file": "assets/preview/f01/seated.png",
+      "size_bytes": 785055,
+      "sha256": "ada58547b8a1ffaea8850a521004c20ee2902ce6f98c055b7df90abee75a9ac5"
+    },
+    "rising": {
+      "file": "assets/preview/f01/rising.png",
+      "size_bytes": 806363,
+      "sha256": "50118c5feba2adf8bfe77ba186e6a04a1d81583171976a660e5181c875f104a9"
+    },
+    "sitting": {
+      "file": "assets/preview/f01/sitting.png",
+      "size_bytes": 806196,
+      "sha256": "01654925db485584d6e66e1faadae158e4523ad9c5c25dea77dc874c4926e41a"
+    }
+  },
+  "assets": [
+    {
+      "file": "desktop/Decanat/Content/Decanat/Animations/office_v5/AS_Sit.uasset",
+      "size_bytes": 222089,
+      "sha256": "ab15dfa124bf30caa5cb34d277d1de347731da27173ee833a39aa12acc981b30"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Animations/office_v5/AS_SitIdle.uasset",
+      "size_bytes": 188956,
+      "sha256": "09502ff593204c2e746ec6e8876abfd558219c4ee0a592fcb5640abfe3356384"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Animations/office_v5/AS_Stand.uasset",
+      "size_bytes": 222097,
+      "sha256": "b7f484eeea11cacdf4ea223346e442a1171f5130f15344826e8e6f4b7cd8e076"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Animations/office_v5/AS_StandIdle.uasset",
+      "size_bytes": 212196,
+      "sha256": "05d10056a1e71db55811c285b40999e658920f458ada45d33adce85069b83ab0"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Characters/BP_DeanOffice.uasset",
+      "size_bytes": 205085,
+      "sha256": "6e129a95ce24e7f912f63cc7fe9b7eff9206e5058a427ab929b0b088602df0a1",
+      "previous_sha256_before_face_binding": "a502dd1f80ad7f03ef06b30fc407807ae761924214ed6199ecdf4bd7ae0ad302"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Wardrobe/office_v4/M_Buttons.uasset",
+      "size_bytes": 5086,
+      "sha256": "b211de202f028acc4f76f9f38a16d9c47adf091d7bdf302fa313210ac47d4f8f"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Wardrobe/office_v4/M_Jacket.uasset",
+      "size_bytes": 5081,
+      "sha256": "f3cdc10462393c4c719d6c9b6c53bb26a040961802cce67bd4d19ac6ec0de50b"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Wardrobe/office_v4/M_Lapel.uasset",
+      "size_bytes": 5076,
+      "sha256": "d542b837c8e109933ebbdab700f785c110beacf060cabcb69267bc1f7f9075ed"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Wardrobe/office_v4/M_Leather.uasset",
+      "size_bytes": 5086,
+      "sha256": "96417f08341937353e37e402b18c2c7a10e95e0c8744b5069a64a48794bb402a"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Wardrobe/office_v4/M_Shirt.uasset",
+      "size_bytes": 5076,
+      "sha256": "7e382991d75e8bf39d75d535e00d166b079f168338538328b459f549d4d681cf"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Wardrobe/office_v4/M_Sole.uasset",
+      "size_bytes": 5071,
+      "sha256": "bc10cf36549b617c6ccbd1e88262118ff31bb95a6d6e51403a95df77a43b5d65"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Wardrobe/office_v4/M_Trousers.uasset",
+      "size_bytes": 5091,
+      "sha256": "6e2aa08651fe76df2fd7c530fa12dddb667012d97278b4ab1cb3d48d7f4df453"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Wardrobe/office_v4/SKM_OfficeOutfit.uasset",
+      "size_bytes": 5385857,
+      "sha256": "824e1a98ae3c5f1f32ec0b9655a80146aa9345601ff99a8526df338174c66aa5"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Characters/ABP_DecanatFace.uasset",
+      "size_bytes": 67531,
+      "sha256": "0c9f6479c00a12a81fe4a732311fc5788e00d511e53ac22dfbf715f0092298ed",
+      "previous_sha256_before_face_binding": "56d1d1316e015405d2c542bcec0ca001d212fadca46c9f2b243228a2e58ae1d2"
+    },
+    {
+      "file": "desktop/Decanat/Content/Decanat/Animations/Face/PA_DecanatArkit.uasset",
+      "size_bytes": 20152907,
+      "sha256": "91fec4d788909f4113a8159bfd07c0ec734fd88778430129d80e6eb9b839eb8c"
+    }
+  ],
+  "appearance_approved": true,
+  "local_ace_verified": true,
+  "full_avatar_ready": false,
+  "appearance_approval": {
+    "approved_by": "user",
+    "recorded_at_utc": "2026-11-04T14:20:42.060748+00:00",
+    "confirmation": "Подходит, утверждаю образ",
+    "scope": [
+      "face",
+      "hairstyle",
+      "clothing",
+      "office_scene"
+    ],
+    "preview_sha256": {
+      "standing": "6a4a0f07ac430c26858f91fb1e27b997da096b53b70c9ef352a2f72f58d14180",
+      "seated": "ada58547b8a1ffaea8850a521004c20ee2902ce6f98c055b7df90abee75a9ac5",
+      "rising": "50118c5feba2adf8bfe77ba186e6a04a1d81583171976a660e5181c875f104a9",
+      "sitting": "01654925db485584d6e66e1faadae158e4523ad9c5c25dea77dc874c4926e41a"
+    },
+    "voice_approved": false
+  },
+  "voice_approved": true,
+  "voice_manifest": {
+    "file": "assets/manifest/voice.json",
+    "sha256": "5151dde5c994b9802d9716112c410c89246f33f5a987ed059aff781b532d9c67"
+  },
+  "face_preparation": {
+    "graph": "/Game/Decanat/Characters/ABP_DecanatFace",
+    "mapping": "/Game/Decanat/Animations/Face/PA_DecanatArkit",
+    "ace_consumer_volume": 0,
+    "original_epic_assets_unchanged": true,
+    "idle_blink_verified": true,
+    "face_sync_verified": true,
+    "body_packaged_verification_scope": "current_with_ace_build",
+    "packaged_blink_verified": true,
+    "native_jaw_cancellation_verified": true,
+    "peak_postprocess_blink": 0.7972675561904907,
+    "max_eyelid_displacement_head_local_cm": 0.8940121211239302
+  },
+  "technical_face_verification": {
+    "file": "assets/manifest/ace-runtime.json",
+    "sha256": "77c0c35ba5fe809c5a56eb78f3535656f790351d3bec57a520e235f12da73950"
+  }
+}

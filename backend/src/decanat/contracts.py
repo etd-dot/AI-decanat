@@ -164,6 +164,7 @@ class ClientCommand(StrictModel):
         "playback_progress",
         "playback_finished",
         "avatar_ready",
+        "face_ready",
         "activity",
         "sources",
     ]

@@ -17,20 +17,27 @@ EXAMPLES = Path(__file__).resolve().parents[1] / "examples" / "knowledge"
 def package(documents=None, manifest=None, extra=None):
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
-        archive.writestr(
+        def write_file(name, data):
+            # Identical fixtures must have identical bytes even when slow native
+            # work crosses ZIP's two-second timestamp boundary.
+            entry = zipfile.ZipInfo(name, date_time=(2026, 1, 1, 0, 0, 0))
+            entry.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(entry, data)
+
+        write_file(
             "manifest.json",
             json.dumps(manifest)
             if manifest is not None
             else (EXAMPLES / "manifest.json").read_bytes(),
         )
-        archive.writestr(
+        write_file(
             "documents.jsonl",
             json.dumps(documents, ensure_ascii=False)
             if documents is not None
             else (EXAMPLES / "documents.jsonl").read_bytes(),
         )
         if extra:
-            archive.writestr(*extra)
+            write_file(*extra)
     return output.getvalue()
 
 

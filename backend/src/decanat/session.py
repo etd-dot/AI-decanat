@@ -54,6 +54,7 @@ class Conversation:
         self._task: asyncio.Task | None = None
         self._subscribers: set[asyncio.Queue] = set()
         self._spoken_characters = 0
+        self._face_pending: tuple[str, asyncio.Future] | None = None
 
     @property
     def active(self) -> bool:
@@ -167,7 +168,11 @@ class Conversation:
         return generation
 
     def _mark_interrupted(self) -> None:
-        if self.history and self.history[-1].role == "assistant" and self.state == State.SPEAKING:
+        if (
+            self.history and self.history[-1].role == "assistant"
+            and self.speech and self.settings.value.speech_enabled
+            and self.state in {State.SPEAKING, State.THINKING, State.TRANSCRIBING}
+        ):
             message = self.history[-1]
             message.interrupted = True
             message.spoken_text = message.text[: self._spoken_characters]
@@ -283,15 +288,7 @@ class Conversation:
                 audio = await self.speech.synthesize(generated.answer_text)
                 if not self._current(generation, session_id, turn_id):
                     return
-                self._state(State.SPEAKING)
-                self.emit(
-                    "speech",
-                    audio_b64=audio.base64(),
-                    sample_rate=audio.sample_rate,
-                    text=generated.answer_text,
-                    duration=audio.duration,
-                    speech_marks=audio.marks_payload(len(generated.answer_text)),
-                )
+                await self._prepare_speech(generation, session_id, turn_id, generated.answer_text, audio)
             else:
                 self._state(State.LISTENING)
                 self.activity()
@@ -418,15 +415,45 @@ class Conversation:
             sources=[],
             provider="local_clarification",
         )
-        self._state(State.SPEAKING)
-        self.emit(
-            "speech",
-            audio_b64=audio.base64(),
-            sample_rate=audio.sample_rate,
-            text=text,
-            duration=audio.duration,
-            speech_marks=audio.marks_payload(len(text)),
-        )
+        try:
+            await self._prepare_speech(generation, session_id, turn_id, text, audio)
+        except ProviderError as error:
+            if self._current(generation, session_id, turn_id):
+                self.emit("error", code=error.code, message=error.message)
+                await self.finish(error.code)
+
+    async def _prepare_speech(self, generation, session_id, turn_id, text, audio):
+        """Prepare the muted face first; release the single audible owner after ACK."""
+        if not self._current(generation, session_id, turn_id):
+            return
+        self._state(State.THINKING)
+        ready = asyncio.get_running_loop().create_future()
+        pending = (turn_id, ready)
+        self._face_pending = pending
+        payload = {
+            "audio_b64": audio.base64(), "sample_rate": audio.sample_rate,
+            "text": text, "duration": audio.duration,
+            "speech_marks": audio.marks_payload(len(text)),
+        }
+        self.emit("speech", **payload)
+        try:
+            async with asyncio.timeout(self.settings.value.face_prepare_timeout):
+                await ready
+        except TimeoutError as error:
+            raise ProviderError("face_timeout", "Не удалось подготовить мимику. Обратитесь к сотруднику") from error
+        finally:
+            if self._face_pending is pending:
+                self._face_pending = None
+        if self._current(generation, session_id, turn_id):
+            self._state(State.SPEAKING)
+            self.emit("playback_start", **payload)
+
+    def face_ready(self, turn_id: str | None) -> bool:
+        pending = self._face_pending
+        if not pending or pending[0] != turn_id or turn_id != self.turn_id or pending[1].done():
+            return False
+        pending[1].set_result(None)
+        return True
 
     def playback_progress(self, turn_id: str, characters: int) -> None:
         if self.state == State.SPEAKING and self.turn_id == turn_id and self.answer:

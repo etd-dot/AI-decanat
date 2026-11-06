@@ -14,6 +14,8 @@ desktop/**/Intermediate/
 desktop/**/Saved/
 desktop/**/DerivedDataCache/
 models/
+desktop/Decanat/Plugins/NV_ACE_Reference/
+desktop/Decanat/Plugins/NvAudio2FaceMark/
 dist/
 build/
 native/audio/subprojects/
