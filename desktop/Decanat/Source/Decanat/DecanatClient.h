@@ -16,6 +16,7 @@ public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
     void Send(const FString& Type, const FString& Text = TEXT(""));
+    void SendForTurn(const FString& Type, const FString& Session, const FString& Turn);
     void Request(const FString& Method, const FString& Route, const FString& Body,
                  TFunction<void(int32, const FString&)> Complete, const FString& ContentType = TEXT("application/json"));
     void RequestBinary(const FString& Route, const TArray<uint8>& Bytes, TFunction<void(int32, const FString&)> Complete);

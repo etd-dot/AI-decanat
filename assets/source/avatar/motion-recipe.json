@@ -1,0 +1,36 @@
+{
+  "version": "office_v5",
+  "fps": 30,
+  "chair_seat_cm": [
+    10,
+    0,
+    47
+  ],
+  "avatar_root_cm": [
+    45,
+    0,
+    0
+  ],
+  "clips": {
+    "SitIdle": {
+      "frames": 121,
+      "duration_seconds": 4.0,
+      "max_ankle_position_error_cm": 2.4711786692494318e-05
+    },
+    "StandIdle": {
+      "frames": 121,
+      "duration_seconds": 4.0,
+      "max_ankle_position_error_cm": 0.0012611727393049014
+    },
+    "Stand": {
+      "frames": 73,
+      "duration_seconds": 2.4,
+      "max_ankle_position_error_cm": 0.0012611727393049014
+    },
+    "Sit": {
+      "frames": 73,
+      "duration_seconds": 2.4,
+      "max_ankle_position_error_cm": 0.0012611727393049014
+    }
+  }
+}

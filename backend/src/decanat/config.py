@@ -28,6 +28,7 @@ class Settings(StrictModel):
     vad_model_path: str = ""
     apm_library_path: str = ""
     speech_enabled: bool = False
+    face_prepare_timeout: int = Field(default=45, ge=1, le=180)
     idle_seconds: int = Field(default=60, ge=5, le=600)
     warning_seconds: int = Field(default=15, ge=3, le=60)
     input_device: str = ""
@@ -57,7 +58,7 @@ class SettingsStore:
         self.root = root
         self.path = root / "settings.json"
         self.value = (
-            Settings.model_validate_json(self.path.read_text())
+            Settings.model_validate_json(self.path.read_text(encoding="utf-8"))
             if self.path.exists()
             else Settings()
         )

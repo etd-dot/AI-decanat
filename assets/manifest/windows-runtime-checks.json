@@ -1,0 +1,159 @@
+{
+  "checked_at_utc": "2026-11-05T21:29:00.754232+00:00",
+  "platform": "Windows 11 x64",
+  "target": "Decanat Win64 Development",
+  "packaged_body_scenarios_passed": true,
+  "ace_enabled": true,
+  "executable": ".runtime/unreal/package-with-ace/Windows/Decanat/Binaries/Win64/Decanat.exe",
+  "executable_sha256": "f7f07bc1ee00e690f2d87b2d3e4f6fb2d8f1aa89f044302f0c20f04aaf14884a",
+  "scenarios": [
+    {
+      "name": "start_and_user_finish",
+      "passed": true
+    },
+    {
+      "name": "inactivity_timeout_60_plus_15",
+      "passed": true
+    },
+    {
+      "name": "cancel_before_face_ready_has_no_audible_playback",
+      "passed": true
+    },
+    {
+      "name": "full_generated_voice_on_actual_output",
+      "passed": true
+    },
+    {
+      "name": "interruption_remains_standing",
+      "passed": true
+    },
+    {
+      "name": "known_quota_stays_seated",
+      "passed": true
+    },
+    {
+      "name": "quota_during_answer_sits",
+      "passed": true
+    },
+    {
+      "name": "finish_while_rising_and_duplicate_snapshot",
+      "passed": true
+    },
+    {
+      "name": "ipc_disconnect_sits",
+      "passed": true
+    }
+  ],
+  "acknowledgements_after_actual_clip_end": 14,
+  "reversal_max_bone_jump_cm": 0.0033223230294277166,
+  "motion_report_sha256": "da0b3ef6e68681ef4af94794a77f664f4cdabb9f4fae2b31f2e783e0994b19ad",
+  "tests": {
+    "passed": 86,
+    "skipped": 0,
+    "log_sha256": "7431f82aad1d0532219a8a19374aff1f4d85b9826587745673a79e4867ad594a"
+  },
+  "native_aec": {
+    "file": ".tools/native/bin/decanat_audio.dll",
+    "sha256": "cefacbec8bb66ee6b9650111751363c85edd26c135d1e0fe3669f8de40166946",
+    "offline_processing_verified": true,
+    "physical_echo_cancellation_verified": false
+  },
+  "local_models": {
+    "synthetic_speech_vad_and_hybrid_search_passed": true,
+    "report_sha256": "99c3a104332119c18217b75d462a623aac83bbf12b683202b9271e8d2a9f13d1"
+  },
+  "voice_approved": true,
+  "idle_blink_verified": true,
+  "face_sync_verified": true,
+  "face_to_dac_timing": {
+    "samples": 93,
+    "maximum_absolute_error_seconds": 0.08373443631717237,
+    "p95_absolute_error_seconds": 0.08327829774498241,
+    "minimum_signed_error_seconds": 0.014361195804667659,
+    "maximum_signed_error_seconds": 0.08373443631717237,
+    "acceptance_bound_seconds": 0.15
+  },
+  "output_device": {
+    "name": "Realtek HD Audio 2nd output (Realtek(R) Audio)",
+    "index": 16,
+    "hostapi": 2,
+    "max_input_channels": 0,
+    "max_output_channels": 2,
+    "default_low_input_latency": 0.0,
+    "default_low_output_latency": 0.003,
+    "default_high_input_latency": 0.0,
+    "default_high_output_latency": 0.01,
+    "default_samplerate": 48000.0
+  },
+  "cancellation_before_and_during_playback_verified": true,
+  "microphone_opened_by_automated_runtime_fixture": false,
+  "interactive_preview_user_confirmation": {
+    "recorded_at_utc": "2026-11-05T21:29:00.754232+00:00",
+    "confirmation": "Да, услышал и ответил",
+    "scope": "User reported a live voice question and a spoken avatar reply in the fictional-KB preview",
+    "acoustic_echo_quality_accepted": false
+  },
+  "production_model_license_qualification_complete": false,
+  "full_product_ready": false,
+  "baseline_without_ace": {
+    "checked_at_utc": "2026-11-05T15:57:58.080140+00:00",
+    "platform": "Windows 11 x64",
+    "target": "Decanat Win64 Development",
+    "packaged_body_scenarios_passed": true,
+    "ace_enabled": false,
+    "executable": ".runtime/unreal/package-no-ace/Windows/Decanat/Binaries/Win64/Decanat.exe",
+    "executable_sha256": "c9c59978ae2dc190ce8180c487238e8d9964f59af520941a2a55a6f590af1197",
+    "scenarios": [
+      {
+        "name": "start_and_user_finish",
+        "passed": true
+      },
+      {
+        "name": "inactivity_timeout_60_plus_15",
+        "passed": true
+      },
+      {
+        "name": "interruption_remains_standing",
+        "passed": true
+      },
+      {
+        "name": "known_quota_stays_seated",
+        "passed": true
+      },
+      {
+        "name": "quota_during_answer_sits",
+        "passed": true
+      },
+      {
+        "name": "finish_while_rising_and_duplicate_snapshot",
+        "passed": true
+      },
+      {
+        "name": "ipc_disconnect_sits",
+        "passed": true
+      }
+    ],
+    "acknowledgements_after_actual_clip_end": 10,
+    "reversal_max_bone_jump_cm": 0.008140883034061153,
+    "motion_report_sha256": "4ccad2f894bf091feb7a277ae4144228e0563ef2761eaedb0d99a9fcb78ab2a6",
+    "tests": {
+      "passed": 80,
+      "skipped": 0,
+      "log_sha256": "71c7d073c7f421aa3d2e236fd0b1f97cd8ff0a37cb3b2589fdbf285fb10564b1"
+    },
+    "native_aec": {
+      "file": ".tools/native/bin/decanat_audio.dll",
+      "sha256": "cefacbec8bb66ee6b9650111751363c85edd26c135d1e0fe3669f8de40166946",
+      "offline_processing_verified": true,
+      "physical_echo_cancellation_verified": false
+    },
+    "local_models": {
+      "synthetic_speech_vad_and_hybrid_search_passed": true,
+      "report_sha256": "99c3a104332119c18217b75d462a623aac83bbf12b683202b9271e8d2a9f13d1"
+    },
+    "voice_approved": true,
+    "idle_blink_verified": false,
+    "face_sync_verified": false,
+    "full_product_ready": false
+  }
+}

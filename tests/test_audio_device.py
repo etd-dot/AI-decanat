@@ -4,8 +4,41 @@ from contextlib import suppress
 from types import SimpleNamespace
 
 import pytest
-from decanat.audio_device import AudioDeviceAgent
-from decanat.speech import EndpointDetector
+from decanat.audio_device import AudioDeviceAgent, stream_devices
+from decanat.speech import Audio, EndpointDetector
+
+
+def test_windows_defaults_use_same_host_wasapi_endpoints_without_capture(monkeypatch):
+    monkeypatch.setattr("decanat.audio_device.sys.platform", "win32")
+    checks = []
+    sd = SimpleNamespace(
+        query_hostapis=lambda: [{"name": "MME"}, {"name": "Windows WASAPI",
+                                                "default_input_device": 18, "default_output_device": 16}],
+        check_input_settings=lambda **kw: checks.append(("input", kw)),
+        check_output_settings=lambda **kw: checks.append(("output", kw)),
+        PortAudioError=RuntimeError,
+    )
+    assert stream_devices(None, None, sd) == (18, 16)
+    assert [kind for kind, _ in checks] == ["input", "output"]
+    assert all(kw["samplerate"] == 48000 and kw["channels"] == 1 for _, kw in checks)
+    # Explicit staff selection must not be remapped to another endpoint/host.
+    assert stream_devices("Staff microphone, MME", "Staff speaker, MME", sd) == (
+        "Staff microphone, MME", "Staff speaker, MME",
+    )
+
+
+def test_unsupported_wasapi_format_keeps_portaudio_default(monkeypatch):
+    monkeypatch.setattr("decanat.audio_device.sys.platform", "win32")
+
+    def unsupported(**_):
+        raise RuntimeError("48 kHz mono not supported")
+
+    sd = SimpleNamespace(
+        query_hostapis=lambda: [{"name": "Windows WASAPI", "default_input_device": 18,
+                                "default_output_device": 16}],
+        check_input_settings=unsupported, PortAudioError=RuntimeError,
+    )
+    assert stream_devices(None, None, sd) is None
 
 
 class VAD:
@@ -33,6 +66,43 @@ def agent_for(controller):
     agent.detector = EndpointDetector()
     agent.vad = VAD()
     return agent
+
+
+async def test_speech_preparation_cannot_reach_audio_device_before_face_ready(controller):
+    class Speech:
+        async def synthesize(self, text):
+            return Audio(bytes(960), 48000)
+
+    controller.speech = Speech()
+    controller.settings.value.speech_enabled = True
+    agent = agent_for(controller)
+    agent._pcm = b""
+    agent._turn_id = None
+    agent._queue = controller.subscribe()
+    events = controller.subscribe()
+    task = asyncio.create_task(agent._events())
+    try:
+        controller.start()
+        controller.avatar_ready()
+        await controller.submit("Сколько делают справку?")
+        async with asyncio.timeout(5):
+            while (prepared := await events.get()).kind != "speech":
+                pass
+        await asyncio.sleep(0)
+        assert agent._pcm == b""
+        assert agent._turn_id is None
+        assert controller.face_ready(prepared.turn_id)
+        await controller._task
+        await asyncio.sleep(0)
+        assert agent._pcm == bytes(960)
+        assert agent._turn_id == prepared.turn_id
+    finally:
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task
+        controller.unsubscribe(agent._queue)
+        controller.unsubscribe(events)
+        await controller.finish()
 
 
 async def test_audio_captured_for_previous_student_is_discarded(controller):

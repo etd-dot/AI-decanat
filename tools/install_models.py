@@ -47,23 +47,25 @@ def main():
     parser.add_argument("--embedding", action="store_true")
     parser.add_argument("--whisper-size", choices=["base", "small", "medium"], default="small")
     parser.add_argument("--configure", action="store_true")
+    parser.add_argument("--data-dir", type=Path, default=ROOT / ".runtime")
+    parser.add_argument("--model-dir", type=Path, default=ROOT / "models")
     args = parser.parse_args()
     if not args.speech and not args.embedding:
         parser.error("Specify --speech and/or --embedding")
     # The same lease also prevents two installers overwriting each other's manifest.
     try:
-        with RuntimeLease(ROOT / ".runtime"):
+        with RuntimeLease(args.data_dir.resolve()):
             install(args)
     except (ValueError, OSError) as exc:
         parser.exit(1, f"{exc}\n")
 
 
 def install(args):
-    sources = json.loads((Path(__file__).parent / "model-sources.json").read_text())
-    model_root = ROOT / "models"
-    settings = SettingsStore(ROOT / ".runtime")
+    sources = json.loads((Path(__file__).parent / "model-sources.json").read_text(encoding="utf-8"))
+    model_root = args.model_dir.resolve()
+    settings = SettingsStore(args.data_dir.resolve())
     record_path = model_root / "installed.json"
-    record = json.loads(record_path.read_text()) if record_path.exists() else {}
+    record = json.loads(record_path.read_text(encoding="utf-8")) if record_path.exists() else {}
     if args.speech:
         revision = sources["whisper"]["revision"]
         whisper = download(

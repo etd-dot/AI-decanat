@@ -102,6 +102,8 @@ class LocalSpeech:
         self.settings = settings
         self._asr = None
         self._tts = None
+        self._tts_archive = None
+        self._tts_importer = None
         self._asr_path = ""
         self._asr_gpu = None
         self._tts_path = ""
@@ -176,10 +178,20 @@ class LocalSpeech:
             if self._tts is None or self._tts_path != str(path):
                 torch.set_num_threads(4)
                 # A torch package can contain code: only operator-installed, checksummed models belong here.
-                self._tts = torch.package.PackageImporter(str(path)).load_pickle(
-                    "tts_models", "model"
-                )
-                self._tts.to(torch.device("cpu"))
+                # The native filename reader cannot open Cyrillic Windows
+                # paths. Python's binary stream uses the Unicode filesystem API.
+                archive = path.open("rb")
+                try:
+                    importer = torch.package.PackageImporter(archive)
+                    model = importer.load_pickle("tts_models", "model")
+                    model.to(torch.device("cpu"))
+                except BaseException:
+                    archive.close()
+                    raise
+                previous = self._tts_archive
+                self._tts, self._tts_importer, self._tts_archive = model, importer, archive
+                if previous is not None:
+                    previous.close()
                 self._tts_path = str(path)
             chunks, marks, samples_total = [], [], 0
             with torch.inference_mode():

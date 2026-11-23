@@ -12,6 +12,45 @@ TOKEN = "local-desktop-token-that-is-long-enough"
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 
 
+@pytest.mark.parametrize(
+    ("origin", "marker", "token", "accepted"),
+    [
+        (None, None, TOKEN, True),
+        ("http://127.0.0.1", "unreal-desktop", TOKEN, True),
+        ("http://127.0.0.1", None, TOKEN, False),
+        ("http://127.0.0.1", "browser", TOKEN, False),
+        ("https://other.site", "unreal-desktop", TOKEN, False),
+        ("null", "unreal-desktop", TOKEN, False),
+        ("http://127.0.0.1", "unreal-desktop", "wrong-token", False),
+    ],
+)
+def test_native_unreal_origin_requires_marker_and_private_token(
+    controller, tmp_path, origin, marker, token, accepted,
+):
+    from starlette.websockets import WebSocketDisconnect
+
+    headers = {"Authorization": f"Bearer {token}"}
+    if origin is not None:
+        headers["Origin"] = origin
+    if marker is not None:
+        headers["X-Decanat-Client"] = marker
+    with TestClient(create_app(tmp_path, TOKEN, conversation=controller), base_url="http://127.0.0.1") as client:
+        if accepted:
+            with client.websocket_connect("ws://127.0.0.1/v1/conversation", headers=headers) as ws:
+                assert ws.receive_json()["kind"] == "snapshot"
+        else:
+            with pytest.raises(WebSocketDisconnect) as rejected:
+                with client.websocket_connect("ws://127.0.0.1/v1/conversation", headers=headers):
+                    pytest.fail("Untrusted WebSocket handshake accepted")
+            assert rejected.value.code == 1008
+
+
+def test_native_marker_does_not_bypass_http_origin_guard(controller, tmp_path):
+    with TestClient(create_app(tmp_path, TOKEN, conversation=controller), base_url="http://127.0.0.1") as client:
+        headers = {**HEADERS, "Origin": "http://127.0.0.1", "X-Decanat-Client": "unreal-desktop"}
+        assert client.get("/v1/health", headers=headers).status_code == 403
+
+
 def test_hash_password_expiry_and_rate_limit(tmp_path):
     from conftest import Clock
 

@@ -2,9 +2,16 @@
   "FileVersion": 3,
   "Category": "Education",
   "Description": "ИИ-аватар деканата",
-  "Modules": [{"Name": "Decanat", "Type": "Runtime", "LoadingPhase": "Default"}],
+  "Modules": [
+    {"Name": "Decanat", "Type": "Runtime", "LoadingPhase": "Default"},
+    {"Name": "DecanatEditorTools", "Type": "Editor", "LoadingPhase": "Default"}
+  ],
   "Plugins": [
     {"Name": "PythonScriptPlugin", "Enabled": true, "TargetAllowList": ["Editor"]},
-    {"Name": "EditorScriptingUtilities", "Enabled": true, "TargetAllowList": ["Editor"]}
+    {"Name": "EditorScriptingUtilities", "Enabled": true, "TargetAllowList": ["Editor"]},
+    {"Name": "MetaHumanCharacter", "Enabled": true},
+    {"Name": "AndroidFileServer", "Enabled": false},
+    {"Name": "NV_ACE_Reference", "Enabled": true},
+    {"Name": "NvAudio2FaceMark", "Enabled": true}
   ]
 }
