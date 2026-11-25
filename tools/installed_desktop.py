@@ -7,16 +7,14 @@ import asyncio
 import hashlib
 import json
 import os
-import secrets
 import subprocess
 import sys
-import zipfile
-from io import BytesIO
+import tempfile
 from pathlib import Path
 
 from decanat.cli import make_kb
-from decanat.config import RuntimeLease, Settings, SettingsStore, write_private
-from decanat.security import AdminAuth
+from decanat.config import RuntimeLease, Settings, SettingsStore
+from decanat.knowledge import pack_directory
 from decanat.speech import LocalSpeech
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,31 +50,28 @@ def initialize(data: Path):
                 embedding_revision=metadata["embedding_revision"],
                 speech_enabled=True, dense_enabled=True,
             ))
-        auth = AdminAuth(data)
-        if not auth.configured:
-            password = secrets.token_urlsafe(18)
-            auth.set_password(password)
-            write_private(data / "initial-password.txt", password + "\n")
-        kb = make_kb(data, store)
-        if not kb.installed:
-            archive = BytesIO()
-            with zipfile.ZipFile(archive, "w") as package:
-                for name in ("manifest.json", "documents.jsonl"):
-                    package.write(ROOT / "examples/knowledge" / name, name)
-            kb.install(archive.getvalue())
-        kb.ensure_compatible()
         return store
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    metadata = json.loads((ROOT / "distribution.json").read_text(encoding="utf-8"))
+    voice_only = metadata.get("presentation") == "2d"
+    profile = "AI-decanat-2D" if voice_only else "AI-decanat-development"
     parser.add_argument("--data-dir", type=Path,
-                        default=Path(os.environ["LOCALAPPDATA"]) / "AI-decanat-development")
+                        default=Path(os.environ["LOCALAPPDATA"]) / profile)
     parser.add_argument("--check", action="store_true", help="Offline runtime check; no capture or playback")
+    parser.add_argument("--kiosk", action="store_true", help="Run the installed avatar full-screen")
     args = parser.parse_args()
     data = args.data_dir.resolve()
     store = initialize(data)
     if args.check:
+        with tempfile.TemporaryDirectory(dir=data, prefix="offline-check-") as folder:
+            kb = make_kb(Path(folder), store)
+            kb.install(pack_directory(ROOT / "examples/knowledge"))
+            kb.warm_up()
+            if not kb.search("Как получить справку об обучении?"):
+                raise RuntimeError("Локальный индекс не вернул документы")
         speech = LocalSpeech(store)
         diagnostics = speech.diagnostics()
         if not all(value for key, value in diagnostics.items() if key != "whisper_gpu_requested"):
@@ -103,16 +98,24 @@ def main():
         print(json.dumps({"passed": True, "runtime": sys.version.split()[0],
                           "codex": result.stdout.strip(), "speech": diagnostics,
                           "native_aec_loaded": True, "tts_asr_vad_warmup_verified": True,
+                          "knowledge_index_verified": True,
                           "package_file": str(Path(__import__("decanat").__file__).resolve()),
                           "microphone_opened": False,
                           "data_dir": str(data)}, ensure_ascii=False))
         return
     # This directory and its imports belong to the immutable installed payload.
     sys.path.insert(0, str(ROOT / "tools"))
+    if voice_only:
+        import launch_voice
+
+        launch_voice.main(data, ROOT, kiosk=args.kiosk)
+        return
     import launch
 
     sys.argv = [str(ROOT / "tools/launch.py"), str(ROOT / "Avatar/Decanat/Binaries/Win64/Decanat.exe"),
-                "--data-dir", str(data), "--windowed"]
+                "--data-dir", str(data), "--setup",
+                "--demo-source", str(ROOT / "examples/knowledge")]
+    sys.argv.append("--kiosk" if args.kiosk else "--windowed")
     launch.main()
 
 

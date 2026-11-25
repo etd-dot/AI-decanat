@@ -31,6 +31,13 @@ class AdminAuth:
             write_private(self.path, self.hasher.hash(password))
             self.tokens.clear()
 
+    def initialize_password(self, password: str) -> bool:
+        with self._lock:
+            if self.configured:
+                return False
+            self.set_password(password)
+            return True
+
     def login(self, password: str) -> str | None:
         with self._lock:
             return self._login(password)

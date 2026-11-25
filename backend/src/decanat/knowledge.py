@@ -42,6 +42,14 @@ class PackageError(ValueError):
     pass
 
 
+def pack_directory(directory: Path) -> bytes:
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for name in ("manifest.json", "documents.jsonl"):
+            archive.write(directory / name, name)
+    return output.getvalue()
+
+
 def strict_json(raw: str | bytes):
     def pairs(items):
         value = {}

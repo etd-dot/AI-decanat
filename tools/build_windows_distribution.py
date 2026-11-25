@@ -101,16 +101,43 @@ def copy_avatar(source: Path, destination: Path):
         "*.pdb", "*.debug", "*.sym", "Saved", "Intermediate", "DerivedDataCache"))
 
 
+def verify_avatar_release(source_exe: Path, report_path: Path, *, new_report: bool) -> str:
+    if not source_exe.is_file():
+        raise ValueError(
+            f"Packaged Unreal/ACE executable is missing: {source_exe}. "
+            "Run tools/unreal.ps1 -Action Package -WithACE on a configured Windows build host."
+        )
+    evidence = json.loads(report_path.read_text(encoding="utf-8"))
+    required = (
+        "passed",
+        "avatar_configured",
+        "native_face_handshake_verified",
+        "ace_local_inference_and_curves_verified",
+        "preparation_cancellation_verified",
+        "output_dac_and_face_clock_verified",
+    ) if new_report else ("face_sync_verified",)
+    executable_sha = sha(source_exe)
+    if executable_sha != evidence.get("executable_sha256") or any(
+        evidence.get(key) is not True for key in required
+    ):
+        raise ValueError("Use the exact Windows/ACE build that passed the recorded runtime checks")
+    return executable_sha
+
+
 def build(args):
     if os.name != "nt":
         raise ValueError("Build this distribution on Windows x64")
-    evidence = json.loads((ROOT / "assets/manifest/windows-runtime-checks.json").read_text(encoding="utf-8"))
     if not args.development:
         raise ValueError("Production release qualification is incomplete; only --development can be built")
-    source_avatar = ROOT / ".runtime/unreal/package-with-ace/Windows"
-    source_exe = source_avatar / "Decanat/Binaries/Win64/Decanat.exe"
-    if sha(source_exe) != evidence["executable_sha256"] or not evidence["face_sync_verified"]:
-        raise ValueError("Use the exact Windows/ACE build that passed the recorded runtime checks")
+    voice_only = args.presentation == "2d"
+    avatar_proof = {}
+    if not voice_only:
+        source_avatar = ROOT / ".runtime/unreal/package-with-ace/Windows"
+        source_exe = source_avatar / "Decanat/Binaries/Win64/Decanat.exe"
+        report_path = args.runtime_report or ROOT / "assets/manifest/windows-runtime-checks.json"
+        executable_sha = verify_avatar_release(source_exe, report_path, new_report=args.runtime_report is not None)
+        avatar_proof = {"avatar_executable_sha256": executable_sha,
+                        "runtime_check_manifest_sha256": sha(report_path)}
     if args.output.exists():
         raise ValueError("Output exists; choose a new directory instead of replacing a build")
     if not args.crt_dir.is_dir():
@@ -133,16 +160,22 @@ def build(args):
     shutil.copy2(ROOT / ".tools/native/bin/decanat_audio.dll", output / "native/decanat_audio.dll")
     shutil.copytree(codex_source, output / "codex")
     (output / "tools").mkdir()
-    for name in ("installed_desktop.py", "launch.py", "install_models.py", "model-sources.json"):
+    ui_tools = ("launch_voice.py", "voice_service.py", "voice_avatar.py",
+                "windows_kiosk_2d.ps1") if voice_only else ("launch.py",)
+    for name in ("installed_desktop.py", "install_models.py", "model-sources.json", *ui_tools):
         shutil.copy2(ROOT / "tools" / name, output / "tools" / name)
     shutil.copytree(ROOT / "examples/knowledge", output / "examples/knowledge")
     print("Verifying and copying pinned local speech/search models", flush=True)
     embedding_revision = copy_models(output / "models")
-    print("Copying the verified Unreal desktop without debug symbols or authoring tools", flush=True)
-    copy_avatar(source_avatar, output / "Avatar")
+    if voice_only:
+        (output / "desktop/voice").mkdir(parents=True)
+        shutil.copy2(ROOT / "desktop/voice/avatar-atlas.png", output / "desktop/voice/avatar-atlas.png")
+    else:
+        print("Copying the verified Unreal desktop without debug symbols or authoring tools", flush=True)
+        copy_avatar(source_avatar, output / "Avatar")
     notices = output / "notices"
     notices.mkdir()
-    for name in ("third-party.md", "avatar-authoring.md"):
+    for name in (("third-party.md",) if voice_only else ("third-party.md", "avatar-authoring.md")):
         shutil.copy2(ROOT / "docs" / name, notices / name)
     shutil.copy2(ROOT / ".tools/inno-7.1.1/License.txt", notices / "Inno-Setup-License.txt")
     for name in ("COPYING", "COPYRIGHT"):
@@ -150,7 +183,7 @@ def build(args):
         if source.exists():
             shutil.copy2(source, notices / ("WebRTC-" + name))
     shutil.copy2(ROOT / "native/audio/subprojects/abseil-cpp-20230125.1/LICENSE", notices / "Abseil-LICENSE")
-    for plugin in ("NV_ACE_Reference", "NvAudio2FaceMark"):
+    for plugin in (() if voice_only else ("NV_ACE_Reference", "NvAudio2FaceMark")):
         directory = ROOT / "desktop/Decanat/Plugins" / plugin
         for source in directory.rglob("*"):
             if not source.is_file() or not any(word in source.name.upper() for word in ("LICENSE", "COPYING", "NOTICE")):
@@ -163,7 +196,8 @@ def build(args):
         "В комплекте вымышленная база: справки и часы приёма. Это не правила реального вуза.\n"
         "Для ответов требуется вход сотрудника в Codex через ChatGPT. API-fallback выключен.\n"
         "Настройки, база и журнал хранятся отдельно в профиле пользователя и сохраняются при удалении программы.\n"
-        "Право production-поставки старых моделей NVIDIA и окончательная приёмка ещё не установлены.\n",
+        + ("" if voice_only else
+           "Право production-поставки старых моделей NVIDIA и окончательная приёмка ещё не установлены.\n"),
         encoding="utf-8-sig")
     build_dir = Path(tempfile.mkdtemp(prefix="windows-launcher-", dir=ROOT / ".runtime"))
     subprocess.run([
@@ -176,8 +210,7 @@ def build(args):
         "created_at_utc": datetime.now(UTC).isoformat(), "development_only": True,
         "production_qualification_complete": False, "python": sys.version.split()[0],
         "dependencies": versions, "codex_executable": codex_relative, "codex_source": codex_record,
-        "embedding_revision": embedding_revision, "avatar_executable_sha256": sha(source_exe),
-        "runtime_check_manifest_sha256": sha(ROOT / "assets/manifest/windows-runtime-checks.json"),
+        "embedding_revision": embedding_revision, "presentation": args.presentation, **avatar_proof,
         "account_data_copied": False, "production_settings_copied": False,
         "development_tools_required_on_target": False,
     }
@@ -191,6 +224,8 @@ def main():
     parser.add_argument("--development", action="store_true")
     parser.add_argument("--crt-dir", type=Path, required=True)
     parser.add_argument("--cxx", default="cl")
+    parser.add_argument("--runtime-report", type=Path, help="Fresh report from verify_packaged_motion.py")
+    parser.add_argument("--presentation", choices=("3d", "2d"), default="3d")
     args = parser.parse_args()
     build(args)
 

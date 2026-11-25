@@ -9,26 +9,35 @@
 #endif
 
 [Setup]
+#ifdef VoicePresentation
+AppId={{53B1081C-FAC5-4730-9365-3694FB3662B1}
+AppName=ИИ деканата — голосовая версия
+DefaultDirName={localappdata}\Programs\AI-decanat-2D
+DefaultGroupName=ИИ деканата — голосовая версия
+OutputBaseFilename=AI-decanat-2d-setup
+UninstallDisplayName=ИИ деканата — голосовая версия
+#else
 AppId={{C97AAD9A-44C2-4459-A8A7-BA6DF598FB93}
 AppName=ИИ деканата — демонстрационная версия
-AppVersion=0.1.0
-AppPublisher=Проект ИИ-деканата
 DefaultDirName={localappdata}\Programs\AI-decanat-Development
 DefaultGroupName=ИИ деканата — демонстрация
+OutputBaseFilename=AI-decanat-development-setup
+UninstallDisplayName=ИИ деканата — демонстрационная версия
+#endif
+AppVersion=0.1.0
+AppPublisher=Проект ИИ-деканата
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0.22000
 AppMutex=Local\AI-decanat-development
 OutputDir={#OutputRoot}
-OutputBaseFilename=AI-decanat-development-setup
 Compression=none
 SolidCompression=no
 DiskSpanning=yes
 DiskSliceSize=1500000000
 WizardStyle=modern
 InfoBeforeFile={#PayloadRoot}\DEVELOPMENT-PREVIEW.txt
-UninstallDisplayName=ИИ деканата — демонстрационная версия
 SetupLogging=yes
 
 [Languages]

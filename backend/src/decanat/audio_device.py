@@ -4,10 +4,14 @@ import asyncio
 import ctypes
 import sys
 import threading
+import time
+from collections import Counter
+from contextlib import suppress
 from pathlib import Path
 
 import numpy as np
 
+from decanat.contracts import State
 from decanat.speech import EndpointDetector, SileroVAD
 
 
@@ -17,8 +21,17 @@ def stream_devices(input_device, output_device, sd):
     Format checks do not open capture. Keep PortAudio's default if the host or
     either endpoint cannot support our duplex format.
     """
+    if input_device and output_device:
+        return (input_device, output_device)
     if input_device or output_device:
-        return (input_device or None, output_device or None)
+        kind = "input" if input_device else "output"
+        selected = sd.query_devices(input_device or output_device, kind)
+        host = sd.query_hostapis(selected["hostapi"])
+        other_kind = "output" if input_device else "input"
+        peer = host[f"default_{other_kind}_device"]
+        if peer < 0:
+            raise ValueError("Выбранный аудиодрайвер требует явного выбора обоих устройств")
+        return (input_device, peer) if input_device else (peer, output_device)
     if sys.platform == "win32":
         for host in sd.query_hostapis():
             if host["name"] != "Windows WASAPI":
@@ -33,6 +46,22 @@ def stream_devices(input_device, output_device, sd):
                 return None
             return (capture, render)
     return None
+
+
+def validate_audio_selection(input_device: str, output_device: str) -> None:
+    """Check the duplex format without opening the microphone."""
+    try:
+        import sounddevice as sd
+    except ImportError as error:
+        raise ValueError("Аудиосистема недоступна") from error
+    try:
+        capture, playback = stream_devices(input_device, output_device, sd)
+        if sd.query_devices(capture, "input")["hostapi"] != sd.query_devices(playback, "output")["hostapi"]:
+            raise ValueError("Выбери микрофон и динамики с одним аудиодрайвером, например Windows WASAPI")
+        sd.check_input_settings(device=capture, channels=1, dtype="int16", samplerate=48000)
+        sd.check_output_settings(device=playback, channels=1, dtype="int16", samplerate=48000)
+    except sd.PortAudioError as error:
+        raise ValueError("Выбранные устройства не поддерживают формат приложения. Выбери другую пару.") from error
 
 
 def device_inventory() -> dict:
@@ -55,6 +84,12 @@ def device_inventory() -> dict:
                     "default_sample_rate": item["default_samplerate"],
                 }
             )
+        inputs = Counter(item["selection"] for item in devices if item["input_channels"])
+        outputs = Counter(item["selection"] for item in devices if item["output_channels"])
+        for device in devices:
+            selection = device["selection"]
+            device["selectable_input"] = bool(device["input_channels"] and inputs[selection] == 1)
+            device["selectable_output"] = bool(device["output_channels"] and outputs[selection] == 1)
         return {
             "available": bool(devices),
             "devices": devices,
@@ -113,8 +148,8 @@ class AudioDeviceAgent:
 
     def __init__(self, controller, apm_library: Path):
         self.controller = controller
-        self.apm = EchoCanceller(apm_library)
         self.vad = SileroVAD(Path(controller.settings.value.vad_model_path))
+        self.apm = EchoCanceller(apm_library)
         self.detector = EndpointDetector()
         self._lock = threading.Lock()
         self._pcm = b""
@@ -122,6 +157,8 @@ class AudioDeviceAgent:
         self._turn_id: str | None = None
         self._marks: list[tuple[int, int]] = []
         self._mark_cursor = 0
+        self._input_peak: int | None = None
+        self._output_test: asyncio.Event | None = None
         self._frames: asyncio.Queue = asyncio.Queue(maxsize=200)
         self._stream = None
         self._tasks = []
@@ -159,16 +196,30 @@ class AudioDeviceAgent:
             if frames != 480:
                 self.loop.call_soon_threadsafe(self._fail)
             return
-        captured_session = self.controller.session_id
+        captured_session = (self.controller.session_id
+                            if self.controller.state != State.STANDING_UP else None)
+        started = None
         finished = None
         progress = []
         with self._lock:
+            if self._input_peak is not None:
+                samples = np.frombuffer(indata, dtype="<i2").astype(np.int32)
+                self._input_peak = max(self._input_peak, int(np.max(np.abs(samples))))
             first_sample = self._cursor // 2
             chunk = self._pcm[self._cursor : self._cursor + 960]
             self._cursor += len(chunk)
             rendered = chunk.ljust(960, b"\x00")
             outdata[:] = rendered
+            if chunk and self._output_test is not None and self._cursor >= len(self._pcm):
+                done, self._output_test = self._output_test, None
+                self._pcm = b""
+                self._cursor = 0
+                delay = max(0.0, timing.outputBufferDacTime - timing.currentTime) + len(chunk) / 96000
+                self.loop.call_soon_threadsafe(self.loop.call_later, delay, done.set)
             if self._turn_id and self._pcm:
+                if first_sample == 0 and chunk:
+                    delay = max(0.0, timing.outputBufferDacTime - timing.currentTime)
+                    started = (self._turn_id, time.monotonic() + delay)
                 while self._mark_cursor < len(self._marks):
                     sample, characters = self._marks[self._mark_cursor]
                     if sample > self._cursor // 2:
@@ -183,6 +234,8 @@ class AudioDeviceAgent:
                     self._mark_cursor += 1
                 if self._cursor >= len(self._pcm):
                     finished, self._turn_id = self._turn_id, None
+        if started:
+            self.loop.call_soon_threadsafe(self.controller.playback_clock, *started)
         for item in progress:
             self.loop.call_soon_threadsafe(self._schedule_progress, *item)
         if finished:
@@ -204,6 +257,42 @@ class AudioDeviceAgent:
     def _schedule_progress(self, turn_id, characters, delay):
         self.loop.call_later(delay, self.controller.playback_progress, turn_id, characters)
 
+    async def test_input(self, duration: float = 3.0) -> dict:
+        if not self.ready:
+            raise RuntimeError("Микрофон недоступен")
+        with self._lock:
+            self._input_peak = 0
+        try:
+            await asyncio.sleep(duration)
+            if not self.ready:
+                raise RuntimeError("Микрофон отключён во время теста")
+            with self._lock:
+                peak = self._input_peak
+            return {"peak": peak / 32768, "signal_detected": peak >= 184}
+        finally:
+            with self._lock:
+                self._input_peak = None
+
+    async def test_output(self, pcm: bytes) -> None:
+        if not self.ready or not pcm or len(pcm) % 2:
+            raise RuntimeError("Динамики недоступны")
+        done = asyncio.Event()
+        with self._lock:
+            self._output_test = done
+            self._pcm = pcm
+            self._cursor = 0
+            self._turn_id = None
+        try:
+            async with asyncio.timeout(len(pcm) / 96000 + 3):
+                await done.wait()
+            if not self.ready:
+                raise RuntimeError("Динамики отключены во время теста")
+        finally:
+            with self._lock:
+                self._pcm = b""
+                self._cursor = 0
+                self._output_test = None
+
     async def start(self):
         import sounddevice as sd
 
@@ -211,6 +300,10 @@ class AudioDeviceAgent:
         settings = self.controller.settings.value
         devices = stream_devices(settings.input_device, settings.output_device, sd)
         self._queue = self.controller.subscribe()
+
+        def notify_finished():
+            self.loop.call_soon_threadsafe(self._fail)
+
         self._stream = sd.RawStream(
             samplerate=48000,
             blocksize=480,
@@ -219,7 +312,7 @@ class AudioDeviceAgent:
             device=devices,
             latency="low",
             callback=self._callback,
-            finished_callback=lambda: self.loop.call_soon_threadsafe(self._fail),
+            finished_callback=notify_finished,
         )
         self._stream.start()
         self._tasks = [
@@ -314,8 +407,10 @@ class AudioDeviceAgent:
         self._closing = True
         self.ready = False
         if self._stream:
-            self._stream.stop()
-            self._stream.close()
+            with suppress(Exception):
+                self._stream.stop()
+            with suppress(Exception):
+                self._stream.close()
         for task in self._tasks:
             task.cancel()
         await asyncio.gather(*self._tasks, return_exceptions=True)

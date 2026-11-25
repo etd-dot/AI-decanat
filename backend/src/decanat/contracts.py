@@ -169,6 +169,7 @@ class ClientCommand(StrictModel):
         "sources",
     ]
     session_id: str | None = None
+    avatar_configured: bool = False
     turn_id: str | None = None
     text: Annotated[str, StringConstraints(max_length=4000)] = ""
     sample_rate: Literal[16000, 24000, 48000] = 16000

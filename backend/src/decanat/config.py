@@ -90,20 +90,18 @@ class SettingsStore:
 class RuntimeLease:
     """Cross-process exclusion: offline CLI changes cannot race the running application."""
 
-    def __init__(self, root: Path):
+    def __init__(self, root: Path, *, name: str = "runtime.lock"):
         self.root = root
+        self.path = root / name
         self.stream = None
 
     def __enter__(self):
         self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
-        self.stream = (self.root / "runtime.lock").open("a+b")
+        self.stream = self.path.open("a+b")
         try:
             if os.name == "nt":
                 import msvcrt
 
-                self.stream.seek(0)
-                self.stream.write(b"0")
-                self.stream.flush()
                 self.stream.seek(0)
                 msvcrt.locking(self.stream.fileno(), msvcrt.LK_NBLCK, 1)
             else:

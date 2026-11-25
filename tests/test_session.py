@@ -46,13 +46,26 @@ async def test_new_student_never_gets_previous_context(controller):
 
 
 async def test_60_plus_15_timer_excludes_thinking(controller):
+    queue = controller.subscribe()
     controller.start()
     controller.avatar_ready()
-    controller.clock.value += 60
+    controller.clock.value += 59.9
+    assert not controller.snapshot()["warning"]
+    controller.clock.value += 0.2
     await controller.tick()
     assert controller.warning
+    event = None
+    while not queue.empty():
+        event = queue.get_nowait()
+    assert event.kind == "idle_warning"
+    assert event.payload["seconds"] == 15
+    controller.clock.value += 14.8
+    assert controller.snapshot()["warning_seconds"] == 1
+    await controller.tick()
+    assert controller.state == State.LISTENING
     controller.activity()
     assert not controller.warning
+    assert controller.snapshot()["warning_seconds"] == 0
     controller._state(State.THINKING)
     controller.clock.value += 1000
     await controller.tick()
@@ -62,6 +75,8 @@ async def test_60_plus_15_timer_excludes_thinking(controller):
     controller.clock.value += 75
     await controller.tick()
     assert controller.state == State.SITTING_DOWN
+    assert controller.snapshot()["warning_seconds"] == 0
+    assert controller.history == []
 
 
 async def test_known_limit_keeps_avatar_seated(controller):

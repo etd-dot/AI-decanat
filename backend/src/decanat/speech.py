@@ -274,7 +274,9 @@ class EndpointDetector:
         self.minimum_frames = max(1, math.ceil(minimum_ms / 32))
         # A ceil would produce 45.024 seconds, rejected by Conversation.audio's 45 s cap.
         self.maximum_frames = max(1, math.floor(maximum_seconds * 1000 / 32))
-        self.pre_roll = deque(maxlen=10)
+        # Echo suppression can delay speech detection when someone starts talking
+        # over playback. Keep 640 ms of cleaned audio to preserve the opening words.
+        self.pre_roll = deque(maxlen=20)
         self.reset()
 
     def reset(self) -> None:

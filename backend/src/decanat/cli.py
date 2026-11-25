@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import getpass
 import json
+import os
 import platform
 import secrets
 import shutil
@@ -71,6 +72,9 @@ def parser() -> argparse.ArgumentParser:
     commands.add_parser("devices", help="Показать аудиоустройства без записи микрофона")
     serve = commands.add_parser("serve", help="Запустить локальный HTTP/WebSocket backend")
     serve.add_argument("--port", type=int, default=8765)
+    serve.add_argument("--desktop-setup", action="store_true", help=argparse.SUPPRESS)
+    serve.add_argument("--connection-file", type=Path, help=argparse.SUPPRESS)
+    serve.add_argument("--demo-source", type=Path, help=argparse.SUPPRESS)
     commands.add_parser("chat", help="Текстовая диагностика с реальным выбранным провайдером")
     kb = commands.add_parser("kb", help="Работа с подготовленной базой")
     actions = kb.add_subparsers(dest="action", required=True)
@@ -212,17 +216,19 @@ def main() -> None:
 
             from decanat.server import create_app
 
-            if not AdminAuth(root).configured:
+            setup_token = os.environ.pop("DECANAT_SETUP_TOKEN", None) if args.desktop_setup else None
+            if args.desktop_setup and not setup_token:
+                raise ValueError("Первичную настройку запускает desktop-приложение")
+            if not args.desktop_setup and not AdminAuth(root).configured:
                 raise ValueError("Сначала выполните decanat init")
             token = secrets.token_urlsafe(32)
-            connection_file = root / "desktop-connection.json"
-            write_private(
-                connection_file,
-                json.dumps({"url": f"http://127.0.0.1:{args.port}", "token": token}),
-            )
-            print(f"Параметры локального подключения: {connection_file}")
+            connection_file = args.connection_file or root / "desktop-connection.json"
             uvicorn.run(
-                create_app(root, token),
+                create_app(
+                    root, token, setup_token=setup_token,
+                    demo_source=args.demo_source if args.desktop_setup else None,
+                    connection_file=connection_file, port=args.port,
+                ),
                 host="127.0.0.1",
                 port=args.port,
                 access_log=False,

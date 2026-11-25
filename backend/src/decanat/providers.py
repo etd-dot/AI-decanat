@@ -115,6 +115,36 @@ async def stop_process(process: asyncio.subprocess.Process) -> None:
             await process.wait()
 
 
+def codex_environment() -> dict[str, str]:
+    allowed = {
+        "PATH", "HOME", "USER", "LOGNAME", "TMPDIR", "TEMP", "TMP", "CODEX_HOME",
+        "SystemRoot", "SystemDrive", "ProgramData", "WINDIR", "USERPROFILE", "APPDATA",
+        "LOCALAPPDATA", "HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY", "NO_PROXY", "SSL_CERT_FILE",
+    }
+    allowed_folded = {key.casefold() for key in allowed}
+    return {key: value for key, value in os.environ.items() if key.casefold() in allowed_folded}
+
+
+async def codex_login(binary: str) -> None:
+    executable = shutil.which(binary)
+    if not executable:
+        raise ProviderError("auth_required", "Codex CLI не установлен или не найден")
+    process = await asyncio.create_subprocess_exec(
+        executable, "login",
+        stdin=asyncio.subprocess.DEVNULL,
+        stdout=asyncio.subprocess.DEVNULL,
+        stderr=asyncio.subprocess.DEVNULL,
+        env=codex_environment(),
+        creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+    )
+    try:
+        async with asyncio.timeout(240):
+            if await process.wait():
+                raise ProviderError("auth_required", "Вход в Codex не завершился. Повторите попытку")
+    finally:
+        await stop_process(process)
+
+
 class CodexProvider:
     def __init__(self, settings: SettingsStore):
         self.settings = settings
@@ -168,40 +198,14 @@ class CodexProvider:
             if self.settings.value.codex_model:
                 args.extend(["--model", self.settings.value.codex_model])
             args.append("-")
-            allowed = {
-                "PATH",
-                "HOME",
-                "USER",
-                "LOGNAME",
-                "TMPDIR",
-                "TEMP",
-                "TMP",
-                "CODEX_HOME",
-                "SystemRoot",
-                "SystemDrive",
-                "ProgramData",
-                "WINDIR",
-                "USERPROFILE",
-                "APPDATA",
-                "LOCALAPPDATA",
-                "HTTPS_PROXY",
-                "HTTP_PROXY",
-                "ALL_PROXY",
-                "NO_PROXY",
-                "SSL_CERT_FILE",
-            }
             # Windows normalizes environment keys to uppercase. Preserve required
             # system paths without accidentally inheriting service credentials.
-            allowed_folded = {key.casefold() for key in allowed}
-            environment = {
-                key: value for key, value in os.environ.items() if key.casefold() in allowed_folded
-            }
             process = await asyncio.create_subprocess_exec(
                 *args,
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
-                env=environment,
+                env=codex_environment(),
                 creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
             )
             try:
@@ -289,6 +293,20 @@ class Providers:
         if error and selected == "codex" and self.settings.value.api_fallback:
             return self.unavailable.get("api")
         return error
+
+    async def probe(self) -> None:
+        selected = self.settings.value.provider
+        evidence = [Evidence(
+            id="setup/service-check", document_title="Проверка соединения",
+            section_title="Контрольный ответ", source_label="Тестовые данные приложения",
+            source_url=None, locator="1", text="Код проверки соединения — 3572.",
+        )]
+        async with asyncio.timeout(self.settings.value.provider_timeout):
+            result = await self.adapters[selected].generate("Назовите код проверки.", [], evidence)
+        validate_answer(result, evidence)
+        if result.status != AnswerStatus.ANSWER or "3572" not in result.answer_text:
+            raise ProviderError("invalid_output", "Сервис не вернул ожидаемый проверочный ответ")
+        self.unavailable.pop(selected, None)
 
     async def answer(
         self, question: str, history: list[Message], evidence: list[Evidence]

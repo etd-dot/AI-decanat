@@ -9,6 +9,34 @@ from decanat.security import AdminAuth
 from tools import build_windows_distribution, installed_desktop
 
 
+def test_new_avatar_package_requires_matching_verified_ace_report(tmp_path):
+    game = tmp_path / "Decanat.exe"
+    game.write_bytes(b"test fixture")
+    report_path = tmp_path / "verification.json"
+    executable_sha = hashlib.sha256(game.read_bytes()).hexdigest()
+    report = {
+        "executable_sha256": executable_sha,
+        "passed": True,
+        "avatar_configured": True,
+        "native_face_handshake_verified": True,
+        "ace_local_inference_and_curves_verified": True,
+        "preparation_cancellation_verified": True,
+        "output_dac_and_face_clock_verified": True,
+    }
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    assert build_windows_distribution.verify_avatar_release(
+        game, report_path, new_report=True
+    ) == executable_sha
+    for change in (
+        {"passed": False},
+        {"native_face_handshake_verified": False},
+        {"executable_sha256": "different executable"},
+    ):
+        report_path.write_text(json.dumps({**report, **change}), encoding="utf-8")
+        with pytest.raises(ValueError, match="exact Windows/ACE build"):
+            build_windows_distribution.verify_avatar_release(game, report_path, new_report=True)
+
+
 def test_runtime_dependency_selection_preserves_nested_extras_and_platform_markers(monkeypatch):
     requirements = {
         "ai-decanat": ["uvicorn[standard]", "speechlib; extra == 'speech'", "pytest; extra == 'dev'"],
@@ -54,6 +82,20 @@ def test_first_installed_startup_rejects_corrupt_model_before_creating_profile(t
     with pytest.raises(ValueError, match="ggml-small.bin"):
         installed_desktop.initialize(data)
     assert not any((data / name).exists() for name in ("settings.json", "admin.hash", "knowledge.sqlite3"))
+
+
+def test_first_installed_startup_creates_only_settings(tmp_path, monkeypatch):
+    payload = tmp_path / "payload"
+    payload.mkdir()
+    (payload / "distribution.json").write_text(
+        json.dumps({"codex_executable": "codex/codex.exe", "embedding_revision": "local"}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(installed_desktop, "ROOT", payload)
+    monkeypatch.setattr(installed_desktop, "verify_models", lambda: None)
+    profile = tmp_path / "profile"
+    assert installed_desktop.initialize(profile).value.speech_enabled
+    assert {path.name for path in profile.iterdir()} == {"settings.json", "runtime.lock"}
 
 
 def test_avatar_distribution_excludes_saved_settings_logs_and_build_cache(tmp_path):

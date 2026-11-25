@@ -72,9 +72,12 @@ class Journal:
             )
 
     def list(self, limit: int = 100, offset: int = 0) -> list[dict]:
+        cutoff = (datetime.now(UTC) - timedelta(days=30)).isoformat()
         with self._db() as db:
             rows = db.execute(
-                "SELECT * FROM turns ORDER BY created_at DESC LIMIT ? OFFSET ?", (limit, offset)
+                "SELECT * FROM turns WHERE created_at >= ? "
+                "ORDER BY created_at DESC, turn_id DESC LIMIT ? OFFSET ?",
+                (cutoff, limit, offset),
             ).fetchall()
         return [{**dict(row), "sources": json.loads(row["sources"])} for row in rows]
 

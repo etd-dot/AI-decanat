@@ -1,10 +1,17 @@
 import asyncio
+import sys
 import threading
+import time
 from contextlib import suppress
 from types import SimpleNamespace
 
 import pytest
-from decanat.audio_device import AudioDeviceAgent, stream_devices
+from decanat.audio_device import (
+    AudioDeviceAgent,
+    device_inventory,
+    stream_devices,
+    validate_audio_selection,
+)
 from decanat.speech import Audio, EndpointDetector
 
 
@@ -41,6 +48,38 @@ def test_unsupported_wasapi_format_keeps_portaudio_default(monkeypatch):
     assert stream_devices(None, None, sd) is None
 
 
+def test_explicit_endpoint_uses_default_peer_from_the_same_driver(monkeypatch):
+    def query_device(name, _kind):
+        return {"hostapi": 1 if name == "Speaker, MME" else 0}
+
+    sd = SimpleNamespace(
+        query_devices=query_device,
+        query_hostapis=lambda _: {"default_input_device": 7, "default_output_device": 8},
+        check_input_settings=lambda **_kw: None,
+        check_output_settings=lambda **_kw: None,
+        PortAudioError=RuntimeError,
+    )
+    monkeypatch.setitem(sys.modules, "sounddevice", sd)
+    assert stream_devices("USB mic, WASAPI", "", sd) == ("USB mic, WASAPI", 8)
+    assert stream_devices("", "Speaker, WASAPI", sd) == (7, "Speaker, WASAPI")
+    validate_audio_selection("USB mic, WASAPI", "")
+    with pytest.raises(ValueError, match="одним аудиодрайвером"):
+        validate_audio_selection("USB mic, WASAPI", "Speaker, MME")
+
+
+def test_inventory_flags_indistinguishable_devices_without_opening_stream(monkeypatch):
+    mic = {"name": "USB", "hostapi": 0, "max_input_channels": 1, "max_output_channels": 0,
+           "default_samplerate": 48000}
+    module = SimpleNamespace(
+        query_hostapis=lambda: [{"name": "WASAPI"}, {"name": "MME"}],
+        query_devices=lambda: [mic, mic, {**mic, "hostapi": 1}],
+    )
+    monkeypatch.setitem(sys.modules, "sounddevice", module)
+    devices = device_inventory()["devices"]
+    assert [device["selectable_input"] for device in devices] == [False, False, True]
+    assert not any(device["selectable_output"] for device in devices)
+
+
 class VAD:
     def __init__(self):
         self.frames = []
@@ -62,6 +101,8 @@ def agent_for(controller):
     agent._lock = threading.Lock()
     agent._pcm = b"queued audio"
     agent._turn_id = "old-turn"
+    agent._input_peak = None
+    agent._output_test = None
     agent.ready = True
     agent.detector = EndpointDetector()
     agent.vad = VAD()
@@ -161,7 +202,14 @@ def test_completed_text_is_reported_after_dac_time_not_when_pcm_is_queued(contro
     agent.loop = Loop()
     agent.apm = SimpleNamespace(process=lambda *args: bytes(320))
     timing = SimpleNamespace(outputBufferDacTime=10.05, currentTime=10.0, inputBufferAdcTime=9.95)
+    before = time.monotonic()
     agent._callback(bytes(960), bytearray(960), 480, timing, None)
+    after = time.monotonic()
+    started = [args for callback, args in agent.loop.soon if callback == controller.playback_clock]
+    assert len(started) == 1
+    turn, starts_at = started[0]
+    assert turn == "turn"
+    assert before + .049 <= starts_at <= after + .051
     schedule = [
         (callback, args)
         for callback, args in agent.loop.soon
@@ -174,3 +222,43 @@ def test_completed_text_is_reported_after_dac_time_not_when_pcm_is_queued(contro
     assert delay == pytest.approx(0.06)
     assert callback == controller.playback_progress
     assert args == ("turn", 9)
+
+
+async def test_staff_audio_diagnostics_use_same_stream_and_clear_buffers(controller):
+    agent = agent_for(controller)
+    aec = []
+
+    def echo(captured, rendered, _delay):
+        aec.append(rendered)
+        return bytes(320)
+
+    agent.loop = asyncio.get_running_loop()
+    agent.apm = SimpleNamespace(process=echo)
+    agent._pcm = b""
+    agent._cursor = 0
+    agent._turn_id = None
+    timing = SimpleNamespace(outputBufferDacTime=10, currentTime=10, inputBufferAdcTime=10)
+    output = bytearray(960)
+    microphone = asyncio.create_task(agent.test_input(0.05))
+    await asyncio.sleep(0)
+    agent._callback(b"\x00\x80" * 480, output, 480, timing, None)
+    assert await microphone == {"peak": 1, "signal_detected": True}
+    assert agent._input_peak is None
+    assert bytes(output) == bytes(960)
+
+    tone = b"\x01\x00" * 480
+    speaker = asyncio.create_task(agent.test_output(tone))
+    await asyncio.sleep(0)
+    agent._callback(bytes(960), output, 480, timing, None)
+    assert bytes(output) == aec[-1] == tone
+    assert not speaker.done()
+    await asyncio.wait_for(speaker, 1)
+    assert agent._pcm == b""
+    assert controller.journal.list() == []
+
+    speaker = asyncio.create_task(agent.test_output(tone))
+    await asyncio.sleep(0)
+    speaker.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await speaker
+    assert agent._pcm == b""

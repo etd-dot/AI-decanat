@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import math
 import time
 import uuid
 from collections.abc import Callable
@@ -96,12 +97,14 @@ class Conversation:
                 queue.put_nowait(event)
 
     def snapshot(self) -> dict:
+        remaining = self.warning_seconds_remaining()
         return {
             "state": self.state.value,
             "session_id": self.session_id,
             "turn_id": self.turn_id,
             "maintenance": self.maintenance,
-            "warning": self.warning,
+            "warning": remaining > 0,
+            "warning_seconds": remaining,
             "history": [m.model_dump(mode="json") for m in self.history],
             "answer": self.answer.model_dump(mode="json") if self.answer else None,
             "sources": [s.model_dump() for s in self.sources],
@@ -461,6 +464,11 @@ class Conversation:
                 max(self._spoken_characters, characters), len(self.answer.answer_text)
             )
 
+    def playback_clock(self, turn_id: str, starts_at: float) -> None:
+        if self.state == State.SPEAKING and self.turn_id == turn_id:
+            # The renderer and the audio device share the host's monotonic clock.
+            self.emit("playback_clock", starts_at=starts_at)
+
     def playback_finished(self, turn_id: str) -> None:
         if self.state != State.SPEAKING or self.turn_id != turn_id:
             return
@@ -477,12 +485,18 @@ class Conversation:
         elapsed = self.clock() - self.last_activity
         if elapsed >= self.settings.value.idle_seconds + self.settings.value.warning_seconds:
             await self.finish("idle_timeout")
-        elif elapsed >= self.settings.value.idle_seconds:
-            remaining = max(
-                0,
-                int(
-                    self.settings.value.idle_seconds + self.settings.value.warning_seconds - elapsed
-                ),
-            )
+        else:
+            remaining = self.warning_seconds_remaining(elapsed)
+            if not remaining:
+                return
             self.warning = True
             self.emit("idle_warning", visible=True, seconds=remaining)
+
+    def warning_seconds_remaining(self, elapsed: float | None = None) -> int:
+        if self.state != State.LISTENING:
+            return 0
+        elapsed = self.clock() - self.last_activity if elapsed is None else elapsed
+        idle = self.settings.value.idle_seconds
+        if elapsed < idle:
+            return 0
+        return max(0, math.ceil(idle + self.settings.value.warning_seconds - elapsed))

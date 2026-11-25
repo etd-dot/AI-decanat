@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from conftest import package
+from conftest import EXAMPLES, package
 from decanat.contracts import AnswerStatus, GeneratedAnswer
 from decanat.providers import ProviderError, validate_answer
 from decanat.security import AdminAuth
@@ -10,6 +10,8 @@ from fastapi.testclient import TestClient
 
 TOKEN = "local-desktop-token-that-is-long-enough"
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
+SETUP_TOKEN = "one-launch-native-setup-token-that-is-long-enough"
+SETUP_HEADERS = {**HEADERS, "X-Setup-Token": SETUP_TOKEN}
 
 
 @pytest.mark.parametrize(
@@ -51,6 +53,113 @@ def test_native_marker_does_not_bypass_http_origin_guard(controller, tmp_path):
         assert client.get("/v1/health", headers=headers).status_code == 403
 
 
+def test_new_profile_bootstrap_requires_both_secrets_and_cannot_replace_password(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+
+    app = create_app(tmp_path, TOKEN, setup_token=SETUP_TOKEN)
+    route = "/v1/setup/password"
+    password = {"password": "new-employee-password"}
+    with TestClient(app) as client:
+        assert client.get("/v1/health", headers=HEADERS).json()["setup_step"] == "password"
+        assert client.post(route, headers={"X-Setup-Token": SETUP_TOKEN}, json=password).status_code == 401
+        assert client.post(route, headers=HEADERS, json=password).status_code == 403
+        assert client.post(route, headers={**SETUP_HEADERS, "Origin": "https://example.com"},
+                           json=password).status_code == 403
+        invalid = "too-long-secret" * 30
+        response = client.post(route, headers=SETUP_HEADERS, json={"password": invalid})
+        assert response.status_code == 422
+        assert invalid not in response.text
+        assert not app.state.auth.configured
+
+        with ThreadPoolExecutor(max_workers=2) as workers:
+            def initialize(_):
+                return client.post(route, headers=SETUP_HEADERS, json=password).status_code
+            assert sorted(workers.map(initialize, range(2))) == [200, 409]
+        assert client.post(route, headers=SETUP_HEADERS,
+                           json={"password": "different-password"}).status_code == 409
+        assert client.post("/v1/admin/login", headers=HEADERS, json=password).status_code == 200
+        assert client.get("/v1/health", headers=HEADERS).json()["setup_step"] == "knowledge"
+    assert not (tmp_path / "initial-password.txt").exists()
+    with TestClient(create_app(tmp_path, TOKEN)) as client:
+        assert client.post(route, headers=SETUP_HEADERS, json=password).status_code == 403
+
+
+def test_setup_requires_real_provider_probe_and_preserves_progress(controller, tmp_path, monkeypatch):
+    from decanat.speech import LocalSpeech
+
+    async def warm_up(_):
+        pass
+
+    class ReadyAudio:
+        def __init__(self, *_):
+            self.ready = False
+
+        async def start(self):
+            self.ready = True
+
+        async def close(self):
+            self.ready = False
+
+    class WorkingProvider:
+        async def generate(self, question, history, evidence):
+            assert question == "Назовите код проверки."
+            assert history == []
+            return GeneratedAnswer(status=AnswerStatus.ANSWER, answer_text="3572",
+                                   source_ids=[evidence[0].id])
+
+    monkeypatch.setattr(LocalSpeech, "warm_up", warm_up)
+    monkeypatch.setattr("decanat.audio_device.AudioDeviceAgent", ReadyAudio)
+    monkeypatch.setattr(controller.settings, "set_api_key", lambda key: None)
+    controller.settings.save(controller.settings.value.model_copy(update={
+        "speech_enabled": True, "api_fallback": True, "api_model": "test-model",
+    }))
+    app = create_app(tmp_path, TOKEN, conversation=controller, setup_token=SETUP_TOKEN)
+    app.state.auth.set_password("current-employee-password")
+    with TestClient(app) as client:
+        assert client.post("/v1/admin/provider-check", headers=HEADERS).status_code == 401
+        staff = {**HEADERS, "X-Admin-Token": app.state.auth.login("current-employee-password")}
+        assert client.get("/v1/health", headers=HEADERS).json()["setup_step"] == "provider"
+        controller.providers.adapters["api"] = WorkingProvider()
+        assert client.post("/v1/admin/provider-check", headers=staff).status_code == 503
+        assert client.get("/v1/health", headers=HEADERS).json()["setup_step"] == "provider"
+        with client.websocket_connect("/v1/conversation", headers=HEADERS) as ws:
+            assert ws.receive_json()["kind"] == "snapshot"
+            ws.send_json({"type": "start", "avatar_configured": True})
+            assert ws.receive_json()["kind"] == "command_error"
+        settings = client.get("/v1/admin/settings", headers=staff).json()
+        settings["provider"] = "api"
+        assert client.put("/v1/admin/settings", headers=staff, json=settings).status_code == 200
+        assert client.post("/v1/admin/provider-check", headers=staff).status_code == 200
+        assert client.get("/v1/health", headers=HEADERS).json()["setup_step"] == "ready"
+        assert controller.journal.list() == []
+
+    restarted = create_app(tmp_path, TOKEN, conversation=controller, setup_token=SETUP_TOKEN)
+    with TestClient(restarted) as client:
+        assert client.get("/v1/health", headers=HEADERS).json()["setup_step"] == "ready"
+        with client.websocket_connect("/v1/conversation", headers=HEADERS) as ws:
+            assert ws.receive_json()["kind"] == "snapshot"
+            ws.send_json({"type": "start"})
+            assert ws.receive_json()["kind"] == "command_error"
+            ws.send_json({"type": "start", "avatar_configured": True})
+            assert ws.receive_json()["payload"]["state"] == "standing_up"
+        staff = {**HEADERS, "X-Admin-Token": restarted.state.auth.login("current-employee-password")}
+        assert client.post("/v1/admin/api-key", headers=staff, content="new-key").status_code == 200
+        assert client.get("/v1/health", headers=HEADERS).json()["setup_step"] == "provider"
+
+
+def test_demo_knowledge_requires_staff_and_explicit_selection(tmp_path):
+    app = create_app(tmp_path, TOKEN, setup_token=SETUP_TOKEN, demo_source=EXAMPLES)
+    app.state.auth.set_password("current-employee-password")
+    with TestClient(app) as client:
+        demo = "/v1/admin/knowledge/demo"
+        assert not client.get("/v1/health", headers=HEADERS).json()["kb_installed"]
+        assert client.post(demo, headers=HEADERS).status_code == 401
+        staff = {**HEADERS, "X-Admin-Token": app.state.auth.login("current-employee-password")}
+        assert client.post(demo, headers=staff).status_code == 200
+        assert client.get("/v1/health", headers=HEADERS).json()["demo_knowledge"]
+        assert client.post(demo, headers=staff).status_code == 409
+
+
 def test_hash_password_expiry_and_rate_limit(tmp_path):
     from conftest import Clock
 
@@ -84,6 +193,85 @@ def test_journal_retention_is_not_session_context(controller):
     )
     assert controller.journal.purge() == 1
     assert controller.journal.list() == []
+
+
+def test_journal_pagination_preserves_interruption_and_sources(controller, tmp_path):
+    now = datetime.now(UTC)
+    evidence = controller.kb.search("справка")
+    for turn_id, timestamp in (("old", now - timedelta(days=31)), ("a", now), ("b", now)):
+        controller.journal.record(
+            turn_id=turn_id, session_id="student", question="Где взять справку?",
+            answer="Полный ответ", status="answer", provider="codex", kb_id="kb",
+            release_id="first", sources=evidence, created_at=timestamp,
+        )
+    controller.journal.playback("b", "Полный", interrupted=True)
+    app = create_app(tmp_path, TOKEN, conversation=controller)
+    app.state.auth.set_password("employee-password")
+    with TestClient(app) as client:
+        staff = {**HEADERS, "X-Admin-Token": app.state.auth.login("employee-password")}
+        route = "/v1/admin/journal?limit=1"
+        assert client.get(route, headers=HEADERS).status_code == 401
+        page = client.get(route, headers=staff).json()
+        row, = page["items"]
+        assert row["turn_id"] == "b"
+        assert row["spoken_text"] == "Полный" and row["interrupted"]
+        assert row["sources"] == [item.model_dump(mode="json") for item in evidence]
+        assert page["has_more"]
+        page = client.get(route + "&offset=1", headers=staff).json()
+        assert [row["turn_id"] for row in page["items"]] == ["a"]
+        assert not page["has_more"]
+
+
+async def test_audio_test_is_staff_only_and_logout_cancels_it(controller, tmp_path, monkeypatch):
+    import asyncio
+
+    from decanat.speech import LocalSpeech
+    from httpx import ASGITransport, AsyncClient
+
+    entered = asyncio.Event()
+
+    async def warm_up(_):
+        pass
+
+    class Audio:
+        def __init__(self, *_):
+            self.ready = False
+            self.testing = False
+
+        async def start(self):
+            self.ready = True
+
+        async def close(self):
+            self.ready = False
+
+        async def test_input(self):
+            self.testing = True
+            entered.set()
+            try:
+                await asyncio.Event().wait()
+            finally:
+                self.testing = False
+
+    monkeypatch.setattr(LocalSpeech, "warm_up", warm_up)
+    monkeypatch.setattr("decanat.audio_device.AudioDeviceAgent", Audio)
+    controller.settings.value.speech_enabled = True
+    app = create_app(tmp_path, TOKEN, conversation=controller)
+    app.state.auth.set_password("employee-password")
+    staff = {**HEADERS, "X-Admin-Token": app.state.auth.login("employee-password")}
+    async with (
+        app.router.lifespan_context(app),
+        AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as client,
+    ):
+        route = "/v1/admin/audio-test/input"
+        assert (await client.post(route, headers=HEADERS)).status_code == 401
+        pending = asyncio.create_task(client.post(route, headers=staff))
+        await asyncio.wait_for(entered.wait(), 2)
+        assert controller.maintenance
+        assert (await client.post(route, headers=staff)).status_code == 409
+        assert (await client.post("/v1/admin/logout", headers=staff)).status_code == 200
+        assert (await asyncio.wait_for(pending, 2)).status_code == 409
+        assert not controller.maintenance
+        assert controller.journal.list() == []
 
 
 def test_provider_cannot_invent_citations(kb):

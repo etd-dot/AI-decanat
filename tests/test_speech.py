@@ -27,6 +27,21 @@ def test_short_noise_is_not_an_utterance():
         assert detector.feed(frame, 0.0) == (False, None)
 
 
+def test_vad_preserves_quiet_onset_before_late_detection():
+    detector = EndpointDetector(silence_ms=64)
+    onset = b"\x10\x00" * 512
+    frame = bytes(512 * 2)
+    detector.feed(onset, 0.4)
+    for _ in range(11):
+        detector.feed(frame, 0.2)
+    for _ in range(5):
+        started, _ = detector.feed(frame, 0.9)
+    assert started
+    detector.feed(frame, 0.0)
+    _, utterance = detector.feed(frame, 0.0)
+    assert utterance is not None and utterance.startswith(onset)
+
+
 def test_maximum_utterance_including_preroll_fits_asr_limit():
     detector = EndpointDetector()
     frame = bytes(512 * 2)
