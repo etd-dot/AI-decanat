@@ -12,7 +12,7 @@
 & .venv/Scripts/python.exe tools/verify_windows_distribution.py dist/windows-2d
 $env:DECANAT_PAYLOAD_ROOT = (Resolve-Path dist/windows-2d).Path
 $env:DECANAT_INSTALLER_ROOT = Join-Path (Get-Location) dist/installer-2d
-& .tools/inno-7.1.1/ISCC.exe /Q installer/windows/development.iss
+& .tools/inno-7.1.1/ISCC.exe /Q /DVoicePresentation=1 installer/windows/development.iss
 ```
 
 При переносе установщика скопируйте весь выходной каталог. При первом запуске задайте пароль сотрудника, загрузите базу и проверьте сервис ответов и звук. Настройка терминала описана в разделе [киоска 2D](#киоск-2d-на-windows-11-pro).
